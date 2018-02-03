@@ -96,12 +96,15 @@ To create a new cluster that meets these requirements, including alpha features,
 
 ```
     gcloud container clusters create hello-istio \
-    --enable-kubernetes-alpha \
     --machine-type=n1-standard-2 \
-    --num-nodes=4 \
+    --num-nodes=5 \
     --no-enable-legacy-authorization \
-    --cluster-version=1.8.5-gke.0
+    --cluster-version=1.8.7-gke.0
 ```
+
+Setup Kubernetes CLI Content:
+
+```gcloud container clusters get-credentials hello-istio --zone ZONE_NAME --project PROJECT_ID```
 
 Now, grant cluster admin permissions to the current user. You need these permissions to create the necessary RBAC rules for Istio.
 
