@@ -48,6 +48,27 @@ Running through this codelab shouldn&#39;t cost you more than a few dollars, but
 
 New users of Google Cloud Platform are eligible for a [$300 free trial](https://console.developers.google.com/billing/freetrial?hl=en).
 
+### Enable API
+Enable the Kubernetes Engine API:
+1. First client on APIs and Services on the right pane
+![api_services](media/apis_and_services.png)
+
+2. Check if the Kubernetes APIs are enabled
+![checkapis](media/check_enabled_.png)
+
+3. If you **CANNOT** find this in your project, then Kubernetes APIs are not enabled. Proceed further. Otherwise skip the following steps.
+
+4. Click on **ENABLE APIS AND SERVICES**
+![enableapiservice](media/enable_apis_services.png)
+
+5. Start typing _**ku**_ in the search bar
+![search](media/search_kub_.png) 
+
+6. Select _Google Kubernetes Engine API_
+
+7. Enable the API
+![gkeapi](media/enable_api.png)
+
 ### Google Cloud Shell
 While Google Cloud and Kubernetes can be operated remotely from your laptop, in this codelab we will be using Google Cloud Shell, a command line environment running in the Cloud.
 
@@ -63,8 +84,6 @@ Then accept the terms of service and click the "Start Cloud Shell" link:
 
 Once connected to the cloud shell, you should see that you are already authenticated and that the project is already set to your _PROJECT_ID_ :
 
-
-
 ## Prepare your Kubernetes/GKE cluster <a name="prepare-your-kubernetes-cluster"/>
 **Duration: 3:00**
 
@@ -75,7 +94,8 @@ The requirements for this Istio codelab are as follows:
 
 To create a new cluster that meets these requirements, including alpha features, run the following commands (this assumes that you have correctly set a zone as indicated in the setup) :
 
-```gcloud container clusters create hello-istio \
+```
+    gcloud container clusters create hello-istio \
     --enable-kubernetes-alpha \
     --machine-type=n1-standard-2 \
     --num-nodes=4 \
@@ -85,7 +105,8 @@ To create a new cluster that meets these requirements, including alpha features,
 
 Now, grant cluster admin permissions to the current user. You need these permissions to create the necessary RBAC rules for Istio.
 
-```kubectl create clusterrolebinding cluster-admin-binding \
+```
+    kubectl create clusterrolebinding cluster-admin-binding \
     --clusterrole=cluster-admin \
     --user=$(gcloud config get-value core/account)
 ```
@@ -157,7 +178,7 @@ You will find the source code and all the other files used in this example in yo
 
 Because we installed the Istio Initializer component, we deploy our application directly using kubectl create and its regular YAML deployment file. The Istio-Initializer automatically injects Envoy containers into your application pods:
 
-```kubectl create -f &lt;(istioctl kube-inject -f samples/bookinfo/kube/bookinfo.yaml)```
+```kubectl create -f <(istioctl kube-inject -f samples/bookinfo/kube/bookinfo.yaml)```
 
 Finally, confirm that the application has been deployed correctly by running the following commands:
 
@@ -189,16 +210,18 @@ First you need to get the ingress IP and port, as follows:
 
 ```kubectl get ingress -o wide 
 NAME      HOSTS     ADDRESS                 PORTS     AGE
-gateway   \*         130.211.10.121          80        3m
+gateway   *         130.211.10.121          80        3m
 ```
 
 Based on this information, set the GATEWAY\_URL environment variable:
 
-```export GATEWAY\_URL=130.211.10.121:80```
+```export GATEWAY_URL=130.211.10.121:80```
 
 Once you have the address and port, check that the BookInfo app is running with curl:
 
-```curl -o /dev/null -s -w &quot;%{http\_code}\n&quot;** [**http://${GATEWAY\_URL}/productpage**](about:blank)200```
+```
+curl -o /dev/null -s -w "%{http_code}\n" http://${GATEWAY_URL}/productpage
+200```
 
 Then point your browser to _**http://$GATEWAY\_URL/productpage**_ to view the BookInfo web page. If you refresh the page several times, you should see different versions of reviews shown in the product page, presented in a round robin style (red stars, black stars, no stars), since we haven&#39;t yet used Istio to control the version routing
 
@@ -213,9 +236,10 @@ We use the istioctl command line tool to control routing, adding a route rule th
 
 ```istioctl get routerules -o yaml```
 
-Now, create the rule (check out the source yaml file it you&#39;d like to understand how rules are specified) :
+No Resouces will be found. Now, create the rule (check out the source yaml file it you&#39;d like to understand how rules are specified) :
 
-```istioctl create -f samples/bookinfo/kube/route-rule-all-v1.yaml -n default
+```
+istioctl create -f samples/bookinfo/kube/route-rule-all-v1.yaml -n default
 
 Created config route-rule/default/productpage-default at revision 136126
 Created config route-rule/default/reviews-default at revision 136127
@@ -237,7 +261,8 @@ To test reviews:v2, but only for a certain user, let&#39;s create this rule:
 
 Check out the route-rule-reviews-test-v2.yaml file to see how this rule is specified :
 
-```$ cat samples/bookinfo/kube/route-rule-reviews-test-v2.yaml
+```
+$ cat samples/bookinfo/kube/route-rule-reviews-test-v2.yaml
 
 apiVersion: config.istio.io/v1alpha2
 kind: RouteRule
@@ -251,10 +276,10 @@ spec:
     request:
       headers:
         cookie:
- **         regex: &quot;^(.\*?;)?(user=jason)(;.\*)?$&quot;**
+          regex: "^(.*?;)?(user=jason)(;.*)?$"
   route:
   - labels:
-      version: v2 |
+      version: v2
 ```
 
 Look at the rule you&#39;ve just created :
@@ -269,7 +294,8 @@ Once the v2 version has been tested to our satisfaction, we could use Istio to s
 
 For now, let&#39;s clean up the routing rules:
 
-```istioctl delete -f samples/bookinfo/kube/route-rule-all-v1.yaml -n default 
+```
+istioctl delete -f samples/bookinfo/kube/route-rule-all-v1.yaml -n default 
 istioctl delete -f samples/bookinfo/kube/route-rule-reviews-test-v2.yaml -n default
 ```
 
@@ -286,7 +312,7 @@ Istio is now configured to send request information.
 
 Configure port forwarding :
 
-```kubectl port-forward -n istio-system $(kubectl get pod -n istio-system -l app=zipkin -o jsonpath=&#39;{.items[0].metadata.name}&#39;) 8080:9411 &amp;```
+```kubectl port-forward -n istio-system $(kubectl get pod -n istio-system -l app=zipkin -o jsonpath='{.items[0].metadata.name}') 9411:9411 &```
 
 If you are running on your local machine, open your browser at [http://localhost:9411](http://localhost:9411)
 
@@ -294,7 +320,7 @@ If you are running on Google Cloud Shell, click the &quot;Web Preview&quot; butt
 
  ![Istio](media/metrics-2.png)
 
-Load the Bookinfo application again (http://$GATEWAY\_URL/productpage).
+Load the Bookinfo application again (http://$GATEWAY_URL/productpage).
 
 Select a trace from the list, and you will now see something similar to the following:
 
@@ -323,7 +349,7 @@ Grafana will be used to visualize the data prometheus.
 
 Configure port forwarding :
 
-```kubectl -n istio-system port-forward $(kubectl -n istio-system get pod -l app=grafana -o jsonpath=&#39;{.items[0].metadata.name}&#39;) 3000:3000 &amp;```
+```kubectl -n istio-system port-forward $(kubectl -n istio-system get pod -l app=grafana -o jsonpath='{.items[0].metadata.name}') 3000:3000 &```
 
 If you are running on your local machine, open your browser at [http://localhost:3000](http://localhost:3000)
 
@@ -331,7 +357,7 @@ If you are running on Google Cloud Shell, click the &quot;Web Preview&quot; butt
 
 ![webpreview](media/metrics-2.png)
 
-Load the Bookinfo application again (http://$GATEWAY\_URL/productpage).
+Load the Bookinfo application again (http://$GATEWAY_URL/productpage).
 
 Select a trace from the list, and you will now see something similar to the following:
 
@@ -348,7 +374,7 @@ First, install the Service Graph addon :
 
 Configure port forwarding :
 
-```kubectl -n istio-system port-forward $(kubectl -n istio-system get pod -l app=servicegraph -o jsonpath=&#39;{.items[0].metadata.name}&#39;) 8088:8088 &amp;```
+```kubectl -n istio-system port-forward $(kubectl -n istio-system get pod -l app=servicegraph -o jsonpath='{.items[0].metadata.name}') 8088:8088 &```
 
 If you are running on your local machine, open your browser at [http://localhost:8088/dotviz](http://localhost:8088/dotviz)
 
