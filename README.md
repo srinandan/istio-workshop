@@ -24,7 +24,6 @@ In this lab, you will learn how to install and configure Istio, an open source f
 
 
 ## Introduction <a name="introduction"/>
-**Duration: 0:00**
 
 [Istio](http://istio.io) is an open source framework for connecting, securing, and managing microservices, including services running on Google Kubernetes Engine (GKE). It lets you create a network of deployed services with load balancing, service-to-service authentication, monitoring, and more, without requiring any changes in service code.
 
@@ -33,7 +32,6 @@ You add Istio support to services by deploying a special Envoy sidecar proxy to 
 This codelab shows you how to install and configure Istio on Kubernetes Engine, deploy an Istio-enabled multi-service application, and dynamically change request routing.
 
 ## Setup and Requirements <a name="setup-and-requirements"/>
-**Duration: 3:00**
 
 If you don&#39;t already have a Google Account (Gmail or Google Apps), you must [create one](https://accounts.google.com/SignUp). Sign-in to Google Cloud Platform console ( [console.cloud.google.com](http://console.cloud.google.com)) and create a new project:
  ![NewProject1](media/setup-req-0.png)
@@ -82,10 +80,9 @@ Then accept the terms of service and click the "Start Cloud Shell" link:
 
 ![NewProject3](media/setup-req-3.png)
 
-Once connected to the cloud shell, you should see that you are already authenticated and that the project is already set to your _PROJECT_ID_ :
+Once connected to the cloud shell, you should see that you are already authenticated and that the project is already set to your _PROJECT_ID_
 
 ## Prepare your Kubernetes/GKE cluster <a name="prepare-your-kubernetes-cluster"/>
-**Duration: 3:00**
 
 The requirements for this Istio codelab are as follows:
 
@@ -119,7 +116,6 @@ If you navigate in the GCP console to Kubernetes clusters you should see a scree
 ![setupcluster](media/setup-cluster-1.png)
 
 ## Installing Istio <a name="installing-istio"/>
-**Duration: 4:00**
 
 Now, let&#39;s install Istio. Istio is installed in its own Kubernetes istio-system namespace, and can manage microservices from all other namespaces. The installation includes Istio core components, tools, and samples.
 
@@ -149,11 +145,16 @@ Let&#39;s now install Istio&#39;s core components. We will install the Istio Aut
 This creates the istio-system namespace along with the required RBAC permissions, and deploys Istio-Pilot, Istio-Mixer, Istio-Ingress, Istio-Egress, and Istio-CA (Certificate Authority).
 
 ## Verifying the installation <a name="verifying-the-installation"/>
-**Duration: 2:00**
 
 First, ensure the following Kubernetes services are deployed: istio-pilot, istio-mixer, istio-ingress, and istio-egress.
 
-```kubectl get svc -n istio-system 
+Run the command:
+```
+kubectl get svc -n istio-system
+```
+OUTPUT:
+
+```
 NAME            CLUSTER-IP      EXTERNAL-IP       PORT(S)                       AGE
 istio-ingress   10.83.245.171   35.184.245.62     80:32730/TCP,443:30574/TCP    3m
 istio-pilot     10.83.251.173   &lt;none&gt;      8080/TCP,8081/TCP             3m
@@ -162,8 +163,12 @@ istio-mixer     10.83.244.253   &lt;none&gt;      9091/TCP,9094/TCP,42422/TCP   
 
 Then make sure that the corresponding Kubernetes pods are deployed and all containers are up and running: istio-pilot-\*, istio-mixer-\*, istio-ingress-\*, istio-ca-\*.
 
+Run the command:
 ```
 kubectl get pods -n istio-system
+```
+OUTPUT:
+```
 NAME                                READY     STATUS    RESTARTS   AGE
 istio-ca-3657790228-j21b9           1/1       Running   0          3m
 istio-ingress-1842462111-j3vcs      1/1       Running   0          3m
@@ -174,7 +179,6 @@ istio-mixer-2104784889-20rm8        2/2       Running   0          3m
 When all the pods are running, you can proceed.
 
 ## Deploying an application <a name="deploying-an-application"/>
-**Duration: 3:00**
 
 Now Istio is installed and verified, you can deploy one of the sample applications provided with the installation — [BookInfo](https://istio.io/docs/guides/bookinfo.html). This is a simple mock bookstore application made up of four services that provide a web product page, book details, reviews (with several versions of the review service), and ratings - all managed using Istio.
 
@@ -186,8 +190,12 @@ Because we installed the Istio Initializer component, we deploy our application 
 
 Finally, confirm that the application has been deployed correctly by running the following commands:
 
+Run the command:
 ```
-kubectl get services 
+kubectl get services
+```
+OUTPUT:
+```
 NAME                       CLUSTER-IP   EXTERNAL-IP   PORT(S)              AGE
 details                    10.0.0.31    &lt;none&gt;        9080/TCP             6m
 kubernetes                 10.0.0.1     &lt;none&gt;        443/TCP              21m
@@ -196,8 +204,13 @@ ratings                    10.0.0.15    &lt;none&gt;        9080/TCP            
 reviews                    10.0.0.170   &lt;none&gt;        9080/TCP             6m
 ```
 
+Run the command:
 ```
-kubectl get pods 
+kubectl get pods
+```
+
+OUTPUT:
+```
 NAME                                        READY     STATUS    RESTARTS   AGE
 details-v1-1520924117-48z17                 2/2       Running   0          6m
 productpage-v1-560495357-jk1lz              2/2       Running   0          6m
@@ -208,7 +221,6 @@ reviews-v3-1813607990-8ch52                 2/2       Running   0          6m
 ```
 
 ## Use the application <a name="use-the-application"/>
-**Duration: 2:00**
 
 Now that it&#39;s deployed, let&#39;s see the BookInfo application in action.
 
@@ -226,9 +238,12 @@ Based on this information, set the GATEWAY\_URL environment variable:
 
 Once you have the address and port, check that the BookInfo app is running with curl:
 
+Run the command:
 ```
 curl -o /dev/null -s -w "%{http_code}\n" http://${GATEWAY_URL}/productpage
-
+```
+OUTPUT:
+```
 200
 ```
 
@@ -237,7 +252,6 @@ Then point your browser to _**http://$GATEWAY\_URL/productpage**_ to view the Bo
 ![Istio](media/use-app-1.png)
 
 ## Dynamically change request routing <a name="dynamically-change-request-routing"/>
-**Duration: 5:00**
 
 The BookInfo sample deploys three versions of the reviews microservice. When you accessed the application several times, you will have noticed that the output sometimes contains star ratings and sometimes it does not. This is because without an explicit default version set, Istio will route requests to all available versions of a service in a random fashion.
 
@@ -247,9 +261,12 @@ We use the istioctl command line tool to control routing, adding a route rule th
 
 No Resouces will be found. Now, create the rule (check out the source yaml file it you&#39;d like to understand how rules are specified) :
 
+Run the command:
 ```
 istioctl create -f samples/bookinfo/kube/route-rule-all-v1.yaml -n default
-
+```
+OUTPUT:
+```
 Created config route-rule/default/productpage-default at revision 136126
 Created config route-rule/default/reviews-default at revision 136127
 Created config route-rule/default/ratings-default at revision 136128
@@ -258,21 +275,25 @@ Created config route-rule/default/details-default at revision 136130
 
 Look at the rule you&#39;ve just created:
 
-```istioctl get routerules -o yaml
+```
+istioctl get routerules -o yaml
 ```
 
 Go back to the Bookinfo application (http://$GATEWAY\_URL/productpage) in your browser. You should see the BookInfo application productpage displayed. Notice that the productpage is displayed with no rating stars since reviews:v1 does not access the ratings service.
 
 To test reviews:v2, but only for a certain user, let&#39;s create this rule:
 
-```istioctl create -f samples/bookinfo/kube/route-rule-reviews-test-v2.yaml -n default
+```
+istioctl create -f samples/bookinfo/kube/route-rule-reviews-test-v2.yaml -n default
 ```
 
 Check out the route-rule-reviews-test-v2.yaml file to see how this rule is specified :
 
 ```
 $ cat samples/bookinfo/kube/route-rule-reviews-test-v2.yaml
-
+```
+OUTPUT:
+```
 apiVersion: config.istio.io/v1alpha2
 kind: RouteRule
 metadata:
@@ -309,7 +330,6 @@ istioctl delete -f samples/bookinfo/kube/route-rule-reviews-test-v2.yaml -n defa
 ```
 
 ## View metrics and tracing <a name="viewing-metrics-and-tracing"/>
-**Duration: 5:00**
 
 Istio-enabled applications can be configured to collect trace spans using, for instance, the popular Zipkin distributed tracing system. Distributed tracing lets you see the flow of requests a user makes through your system, and Istio&#39;s model allows this regardless of what language/framework/platform you use to build your application.
 
@@ -340,7 +360,6 @@ You can see how long each microservice call took, including the Istio checks.
 You can read the [documentation page](https://istio.io/docs/tasks/telemetry/distributed-tracing.html) for further details on Istio&#39;s distributed request tracing.
 
 ## Monitoring for Istio <a name="monitoring-for-istio"/>
-**Duration: 1:00**
 
 This task shows you how to setup and use the Istio Dashboard to monitor mesh traffic. As part of this task, you will install the Grafana Istio addon and use the web-based interface for viewing service mesh traffic data.
 
@@ -373,7 +392,6 @@ Select a trace from the list, and you will now see something similar to the foll
  ![monitoring](media/monitoring-1.png)
 
 ## Generating a Service Graph <a name="generate-graph"/>
-**Duration: 1:00**
 
 This task shows you how to generate a graph of services within an Istio mesh. As part of this task, you will install the ServiceGraph addon and use the web-based interface for viewing service graph of the service mesh.
 
@@ -396,7 +414,6 @@ You will now see something similar to the following:
 ![servicegraph](media/servicegraph-1.png)
 
 ## Uninstall Istio <a name="uninstall-istio"/>
-**Duration: 1:00**
 
 Here&#39;s how to uninstall Istio.
 
@@ -420,7 +437,6 @@ deployment &quot;productpage-v1&quot; deleted
 For the current release, uninstalling Istio core components also deletes the RBAC permissions, the istio-system namespace, and hierarchically all resources under it. It is safe to ignore errors for non-existent resources because they may have been deleted hierarchically.
 
 ## Cleanup resources <a name="cleanup-resources"/>
-**Duration: 1:00**
 
 Environment: Web
 
@@ -435,7 +451,6 @@ Deleting cluster hello-istio...done.                                            
 Of course, you can also delete the entire project but you would lose any billing setup you have done (disabling project billing first is required). Additionally, deleting a project will only stop all billing after the current billing cycle ends.
 
 ## What&#39;s next <a name="what-next"/>
-**Duration: 0:00**
 
 The [Istio site](https://istio.io/) contains guides and samples with fully working example uses for Istio that you can experiment with. These include:
 
