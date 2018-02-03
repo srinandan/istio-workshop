@@ -62,7 +62,7 @@ Enable the Kubernetes Engine API:
 ![enableapiservice](media/enable_apis_services.png)
 
 5. Start typing _**ku**_ in the search bar
-![search](media/search_kub_.png) 
+![search](media/search_kub.png) 
 
 6. Select _Google Kubernetes Engine API_
 
