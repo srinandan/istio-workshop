@@ -18,9 +18,10 @@ In this lab, you will learn how to install and configure Istio, an open source f
 9. [View metrics and tracing](#viewing-metrics-and-tracing)
 10. [Monitoring for Istio](#monitoring-for-istio)
 11. [Generating a Service Graph](#generate-graph)
-12. [Uninstall Istio](#uninstall-istio)
-13. [Cleanup resources](#cleanup-resources)
-14. [What's next?](#what-next?)
+12. [Fault Injection] (#fault-injection)
+13. [Uninstall Istio](#uninstall-istio)
+14. [Cleanup resources](#cleanup-resources)
+15. [What's next?](#what-next?)
 
 
 ## Introduction <a name="introduction"/>
@@ -96,12 +97,13 @@ To create a new cluster that meets these requirements, including alpha features,
     --machine-type=n1-standard-2 \
     --num-nodes=5 \
     --no-enable-legacy-authorization \
+    --zone=us-west1-b \
     --cluster-version=1.8.7-gke.0
 ```
 
 Setup Kubernetes CLI Content:
 
-```gcloud container clusters get-credentials hello-istio --zone ZONE_NAME --project PROJECT_ID```
+```gcloud container clusters get-credentials hello-istio --zone us-west1-b --project PROJECT_ID```
 
 Now, grant cluster admin permissions to the current user. You need these permissions to create the necessary RBAC rules for Istio.
 
@@ -197,11 +199,11 @@ kubectl get services
 OUTPUT:
 ```
 NAME                       CLUSTER-IP   EXTERNAL-IP   PORT(S)              AGE
-details                    10.0.0.31    &lt;none&gt;        9080/TCP             6m
-kubernetes                 10.0.0.1     &lt;none&gt;        443/TCP              21m
-productpage                10.0.0.120   &lt;none&gt;        9080/TCP             6m
-ratings                    10.0.0.15    &lt;none&gt;        9080/TCP             6m
-reviews                    10.0.0.170   &lt;none&gt;        9080/TCP             6m
+details                    10.0.0.31    <none>        9080/TCP             6m
+kubernetes                 10.0.0.1     <none>        443/TCP              21m
+productpage                10.0.0.120   <none>        9080/TCP             6m
+ratings                    10.0.0.15    <none>        9080/TCP             6m
+reviews                    10.0.0.170   <none>        9080/TCP             6m
 ```
 
 Run the command:
@@ -228,6 +230,9 @@ First you need to get the ingress IP and port, as follows:
 
 ```
 kubectl get ingress -o wide 
+```
+OUTPUT:
+```
 NAME      HOSTS     ADDRESS                 PORTS     AGE
 gateway   *         130.211.10.121          80        3m
 ```
@@ -316,7 +321,7 @@ Look at the rule you&#39;ve just created :
 
 ```istioctl get routerule reviews-test-v2 -o yaml```
 
-We now have a way to route some requests to use the reviews:v2 service. Can you guess how? (Hint: no passwords are needed) See how the page behaviour changes if you are logged in as no-one, &#39;jason&#39;, or &#39;kylie&#39;.
+We now have a way to route some requests to use the reviews:v2 service. Can you guess how? (Hint: no passwords are needed) See how the page behaviour changes if you are logged in as no-one and &#39;jason&#39;.
 
 You can read the [documentation page](https://istio.io/docs/tasks/traffic-management/request-routing.html) for further details on Istio&#39;s request routing.
 
@@ -339,15 +344,11 @@ First, install the Zipkin addon :
 
 Istio is now configured to send request information.
 
-Configure port forwarding :
+Configure port forwarding (works on Google Cloud Shell only):
 
-```kubectl port-forward -n istio-system $(kubectl get pod -n istio-system -l app=zipkin -o jsonpath='{.items[0].metadata.name}') 9411:9411 &```
+```kubectl port-forward -n istio-system $(kubectl get pod -n istio-system -l app=zipkin -o jsonpath='{.items[0].metadata.name}') 8080:9411 &```
 
-If you are running on your local machine, open your browser at [http://localhost:9411](http://localhost:9411)
-
-If you are running on Google Cloud Shell, click the &quot;Web Preview&quot; button to open the page.
-
- ![Istio](media/metrics-2.png)
+Open your browser at [http://localhost:9411](http://localhost:9411)
 
 Load the Bookinfo application again (http://$GATEWAY_URL/productpage).
 
@@ -375,15 +376,11 @@ Next, we install the Grafana addon:
 
 Grafana will be used to visualize the data prometheus.
 
-Configure port forwarding :
+Configure port forwarding (works on Google shell only):
 
-```kubectl -n istio-system port-forward $(kubectl -n istio-system get pod -l app=grafana -o jsonpath='{.items[0].metadata.name}') 3000:3000 &```
+```kubectl -n istio-system port-forward $(kubectl -n istio-system get pod -l app=grafana -o jsonpath='{.items[0].metadata.name}') 8080:3000 &```
 
-If you are running on your local machine, open your browser at [http://localhost:3000](http://localhost:3000)
-
-If you are running on Google Cloud Shell, click the &quot;Web Preview&quot; button to open the page.
-
-![webpreview](media/metrics-2.png)
+Open your browser at [http://localhost:3000](http://localhost:3000)
 
 Load the Bookinfo application again (http://$GATEWAY_URL/productpage).
 
@@ -399,19 +396,46 @@ First, install the Service Graph addon :
 
 ```kubectl apply -f install/kubernetes/addons/servicegraph.yaml```
 
-Configure port forwarding :
+Configure port forwarding (works on Google Cloud Shell only):
 
-```kubectl -n istio-system port-forward $(kubectl -n istio-system get pod -l app=servicegraph -o jsonpath='{.items[0].metadata.name}') 8088:8088 &```
+```kubectl -n istio-system port-forward $(kubectl -n istio-system get pod -l app=servicegraph -o jsonpath='{.items[0].metadata.name}') 8080:8088 &```
 
-If you are running on your local machine, open your browser at [http://localhost:8088/dotviz](http://localhost:8088/dotviz)
-
-If you are running on Google Cloud Shell, click the &quot;Web Preview&quot; button to open the page.
-
-![webpreview](media/metrics-2.png) 
+Ppen your browser at [http://localhost:8088/dotviz](http://localhost:8088/dotviz)
 
 You will now see something similar to the following:
 
 ![servicegraph](media/servicegraph-1.png)
+
+## Fault Injection <a name="fault-injection"/>
+
+This task shows how to inject delays and test the resiliency of your application.
+
+*_Note: This assumes you don’t have any routes set yet. If you’ve already created conflicting route rules for the sample, you’ll need to use replace rather than create in one or both of the following commands._*
+
+To test our BookInfo application microservices for resiliency, we will inject a 7s delay between the reviews:v2 and ratings microservices, for user “jason”. Since the reviews:v2 service has a 10s timeout for its calls to the ratings service, we expect the end-to-end flow to continue without any errors.
+
+Create a fault injection rule to delay traffic coming from user “jason” (our test user)
+
+```
+istioctl create -f samples/bookinfo/kube/route-rule-ratings-test-delay.yaml
+```
+
+Run the command:
+```
+istioctl get routerule ratings-test-delay -o yaml
+```
+You should see the yaml for the routing rule. Allow several seconds to account for rule propagation delay to all pods.
+
+### Observe application behavior
+
+Log in as user “jason”. If the application’s front page was set to correctly handle delays, we expect it to load within approximately 7 seconds. To see the web page response times, open the Developer Tools menu in IE, Chrome or Firefox (typically, key combination _Ctrl+Shift+I or Alt+Cmd+I_), tab Network, and reload the _productpage_ web page.
+
+You will see that the webpage loads in about 6 seconds. The reviews section will show _Sorry, product reviews are currently unavailable for this book_.
+
+### Understanding what happened
+The reason that the entire reviews service has failed is because our BookInfo application has a bug. The timeout between the productpage and reviews service is less (3s + 1 retry = 6s total) than the timeout between the reviews and ratings service (10s). These kinds of bugs can occur in typical enterprise applications where different teams develop different microservices independently. Istio’s fault injection rules help you identify such anomalies without impacting end users.
+
+**Notice that we are restricting the failure impact to user “jason” only. If you login as any other user, you would not experience any delays**
 
 ## Uninstall Istio <a name="uninstall-istio"/>
 
@@ -419,7 +443,9 @@ Here&#39;s how to uninstall Istio.
 
 ```
 kubectl delete -f samples/bookinfo/kube/bookinfo.yaml 
-
+```
+OUTPUT:
+```
 service &quot;details&quot; deleted
 deployment &quot;details-v1&quot; deleted
 service &quot;ratings&quot; deleted
@@ -437,8 +463,6 @@ deployment &quot;productpage-v1&quot; deleted
 For the current release, uninstalling Istio core components also deletes the RBAC permissions, the istio-system namespace, and hierarchically all resources under it. It is safe to ignore errors for non-existent resources because they may have been deleted hierarchically.
 
 ## Cleanup resources <a name="cleanup-resources"/>
-
-Environment: Web
 
 In addition to uninstalling Istio, you should also delete the Kubernetes cluster created in the setup phase (to save on cost and to be a good cloud citizen):
 
