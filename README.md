@@ -475,16 +475,16 @@ kubectl delete -f samples/bookinfo/kube/bookinfo.yaml
 ```
 OUTPUT:
 ```
-service &quot;details&quot; deleted
-deployment &quot;details-v1&quot; deleted
-service &quot;ratings&quot; deleted
-deployment &quot;ratings-v1&quot; deleted
-service &quot;reviews&quot; deleted
-deployment &quot;reviews-v1&quot; deleted
-deployment &quot;reviews-v2&quot; deleted
-deployment &quot;reviews-v3&quot; deleted
-service &quot;productpage&quot; deleted
-deployment &quot;productpage-v1&quot; deleted
+service    'details'    deleted
+deployment 'details-v1' deleted
+service    'ratings'    deleted
+deployment 'ratings-v1' deleted
+service    'reviews'    deleted
+deployment 'reviews-v1' deleted
+deployment 'reviews-v2' deleted
+deployment 'reviews-v3' deleted
+service    'productpage' deleted
+deployment 'productpage-v1' deleted
 ```
  
 ```kubectl delete -f install/kubernetes/istio-auth.yaml```
