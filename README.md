@@ -1,5 +1,5 @@
-# Istio lab (with Kubernetes)
-(estimated duration: 60 minutes)
+# Hands-on workshop on Istio (with Kubernetes)
+Estimated duration: 60 minutes
 
 ![Istio](media/istio.png)
 
@@ -49,7 +49,7 @@ New users of Google Cloud Platform are eligible for a [$300 free trial](https://
 
 ### Enable API
 Enable the Kubernetes Engine API:
-1. First client on APIs and Services on the right pane
+1. First click on APIs and Services on the right pane
 ![api_services](media/apis_and_services.png)
 
 2. Check if the Kubernetes APIs are enabled
@@ -65,11 +65,12 @@ Enable the Kubernetes Engine API:
 
 6. Select _Google Kubernetes Engine API_
 
-7. Enable the API
+7. Enable the API. This step could take 2 or 3 minutes.
+
 ![gkeapi](media/enable_api.png)
 
 ### Google Cloud Shell
-While Google Cloud and Kubernetes can be operated remotely from your laptop, in this codelab we will be using Google Cloud Shell, a command line environment running in the Cloud.
+While Google Cloud and Kubernetes can be operated remotely from your laptop, in this workshop we will be using Google Cloud Shell, a command line environment running in the Cloud.
 
 This Debian-based virtual machine is loaded with all the development tools you'll need. It offers a persistent 5GB home directory, and runs on the Google Cloud, greatly enhancing network performance and authentication. This means that all you will need for this codelab is a browser (yes, it works on a Chromebook).
 
@@ -85,7 +86,7 @@ Once connected to the cloud shell, you should see that you are already authentic
 
 ## Prepare your Kubernetes/GKE cluster <a name="prepare-your-kubernetes-cluster"/>
 
-The requirements for this Istio codelab are as follows:
+The requirements for this Istio lab are as follows:
 
 - your cluster should use Kubernetes 1.8.0 or newer, which includes [role-based access control (RBAC)](https://cloud-dot-devsite.googleplex.com/container-engine/docs/role-based-access-control) support.
 - you need to [create your cluster with alpha feature support](https://cloud.google.com/container-engine/docs/alpha-clusters), as Istio makes use of [initializers](https://kubernetes.io/docs/admin/extensible-admission-controllers/#enable-initializers-alpha-feature) to [automatically install the Istio Proxy into every Pod](https://istio.io/docs/setup/kubernetes/sidecar-injection.html#automatic-sidecar-injection)
@@ -159,8 +160,8 @@ OUTPUT:
 ```
 NAME            CLUSTER-IP      EXTERNAL-IP       PORT(S)                       AGE
 istio-ingress   10.83.245.171   35.184.245.62     80:32730/TCP,443:30574/TCP    3m
-istio-pilot     10.83.251.173   &lt;none&gt;      8080/TCP,8081/TCP             3m
-istio-mixer     10.83.244.253   &lt;none&gt;      9091/TCP,9094/TCP,42422/TCP   3m
+istio-pilot     10.83.251.173   <none>            8080/TCP,8081/TCP             3m
+istio-mixer     10.83.244.253   <none>            9091/TCP,9094/TCP,42422/TCP   3m
 ```
 
 Then make sure that the corresponding Kubernetes pods are deployed and all containers are up and running: istio-pilot-\*, istio-mixer-\*, istio-ingress-\*, istio-ca-\*.
@@ -237,9 +238,11 @@ NAME      HOSTS     ADDRESS                 PORTS     AGE
 gateway   *         130.211.10.121          80        3m
 ```
 
-Based on this information, set the GATEWAY\_URL environment variable:
+Based on this information (Address), set the GATEWAY\_URL environment variable:
 
 ```export GATEWAY_URL=130.211.10.121:80```
+
+NOTE : don't forget to append `:80` in the GATEWAY_URL
 
 Once you have the address and port, check that the BookInfo app is running with curl:
 
@@ -468,13 +471,16 @@ In addition to uninstalling Istio, you should also delete the Kubernetes cluster
 
 ```gcloud container clusters delete hello-istio``` 
 
-The following clusters will be deleted. - [hello-istio] in [us-central1-f]Do you want to continue (Y/n)?  Y
+OUTPUT
+```
+The following clusters will be deleted. - [hello-istio] in [west1-b]
+Do you want to continue (Y/n)?  Y
 Deleting cluster hello-istio...done.                                                                                                                                                                                         Deleted [https://container.googleapis.com/v1/projects/codelab-test/zones/us-central1-f/clusters/hello-istio].
-
+```
 
 Of course, you can also delete the entire project but you would lose any billing setup you have done (disabling project billing first is required). Additionally, deleting a project will only stop all billing after the current billing cycle ends.
 
-## What&#39;s next <a name="what-next"/>
+## What's next <a name="what-next"/>
 
 The [Istio site](https://istio.io/) contains guides and samples with fully working example uses for Istio that you can experiment with. These include:
 
