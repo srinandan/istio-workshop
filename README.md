@@ -100,7 +100,7 @@ To create a new cluster that meets these requirements, including alpha features,
     --machine-type=n1-standard-2 \
     --num-nodes=4 \
     --no-enable-legacy-authorization \
-	--cluster-version=1.8.5-gke.0
+    --cluster-version=1.8.5-gke.0
 ```
 
 Now, grant cluster admin permissions to the current user. You need these permissions to create the necessary RBAC rules for Istio.
@@ -159,7 +159,8 @@ istio-mixer     10.83.244.253   &lt;none&gt;      9091/TCP,9094/TCP,42422/TCP   
 
 Then make sure that the corresponding Kubernetes pods are deployed and all containers are up and running: istio-pilot-\*, istio-mixer-\*, istio-ingress-\*, istio-ca-\*.
 
-```kubectl get pods -n istio-system
+```
+kubectl get pods -n istio-system
 NAME                                READY     STATUS    RESTARTS   AGE
 istio-ca-3657790228-j21b9           1/1       Running   0          3m
 istio-ingress-1842462111-j3vcs      1/1       Running   0          3m
@@ -182,7 +183,8 @@ Because we installed the Istio Initializer component, we deploy our application 
 
 Finally, confirm that the application has been deployed correctly by running the following commands:
 
-```kubectl get services 
+```
+kubectl get services 
 NAME                       CLUSTER-IP   EXTERNAL-IP   PORT(S)              AGE
 details                    10.0.0.31    &lt;none&gt;        9080/TCP             6m
 kubernetes                 10.0.0.1     &lt;none&gt;        443/TCP              21m
@@ -191,7 +193,8 @@ ratings                    10.0.0.15    &lt;none&gt;        9080/TCP            
 reviews                    10.0.0.170   &lt;none&gt;        9080/TCP             6m
 ```
 
-```kubectl get pods 
+```
+kubectl get pods 
 NAME                                        READY     STATUS    RESTARTS   AGE
 details-v1-1520924117-48z17                 2/2       Running   0          6m
 productpage-v1-560495357-jk1lz              2/2       Running   0          6m
@@ -208,7 +211,8 @@ Now that it&#39;s deployed, let&#39;s see the BookInfo application in action.
 
 First you need to get the ingress IP and port, as follows:
 
-```kubectl get ingress -o wide 
+```
+kubectl get ingress -o wide 
 NAME      HOSTS     ADDRESS                 PORTS     AGE
 gateway   *         130.211.10.121          80        3m
 ```
@@ -405,7 +409,8 @@ deployment &quot;reviews-v1&quot; deleted
 deployment &quot;reviews-v2&quot; deleted
 deployment &quot;reviews-v3&quot; deleted
 service &quot;productpage&quot; deleted
-deployment &quot;productpage-v1&quot; deleted```
+deployment &quot;productpage-v1&quot; deleted
+```
  
 ```kubectl delete -f install/kubernetes/istio-auth.yaml```
 
