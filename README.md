@@ -18,7 +18,7 @@ In this lab, you will learn how to install and configure Istio, an open source f
 9. [View metrics and tracing](#viewing-metrics-and-tracing)
 10. [Monitoring for Istio](#monitoring-for-istio)
 11. [Generating a Service Graph](#generate-graph)
-12. [Fault Injection] (#fault-injection)
+12. [Fault Injection](#fault-injection)
 13. [Uninstall Istio](#uninstall-istio)
 14. [Cleanup resources](#cleanup-resources)
 15. [What's next?](#what-next?)
@@ -187,7 +187,29 @@ Now Istio is installed and verified, you can deploy one of the sample applicatio
 
 You will find the source code and all the other files used in this example in your Istio [samples/bookinfo](https://github.com/istio/istio/tree/master/samples/bookinfo) directory. These steps will deploy the BookInfo application&#39;s services in an Istio-enabled environment, with Envoy sidecar proxies injected alongside each service to provide Istio functionality.
 
-Because we installed the Istio Initializer component, we deploy our application directly using kubectl create and its regular YAML deployment file. The Istio-Initializer automatically injects Envoy containers into your application pods:
+### Overview
+In this guide we will deploy a simple application that displays information about a book, similar to a single catalog entry of an online book store. Displayed on the page is a description of the book, book details (ISBN, number of pages, and so on), and a few book reviews.
+
+The BookInfo application is broken into four separate microservices:
+
+* productpage. The productpage microservice calls the details and reviews microservices to populate the page.
+* details. The details microservice contains book information.
+* reviews. The reviews microservice contains book reviews. It also calls the ratings microservice.
+* ratings. The ratings microservice contains book ranking information that accompanies a book review.
+
+There are 3 versions of the reviews microservice:
+
+* Version v1 doesn’t call the ratings service.
+* Version v2 calls the ratings service, and displays each rating as 1 to 5 black stars.
+* Version v3 calls the ratings service, and displays each rating as 1 to 5 red stars.
+
+The end-to-end architecture of the application is shown below.
+
+![bookinfo](media/bookinfo.png)
+
+### Deploy Bookinfo
+
+We deploy our application directly using kubectl create and its regular YAML deployment file. We will inject Envoy containers into your application pods using istioctl:
 
 ```kubectl create -f <(istioctl kube-inject -f samples/bookinfo/kube/bookinfo.yaml)```
 
@@ -222,6 +244,10 @@ reviews-v1-874083890-f0qf0                  2/2       Running   0          6m
 reviews-v2-1343845940-b34q5                 2/2       Running   0          6m
 reviews-v3-1813607990-8ch52                 2/2       Running   0          6m
 ```
+
+With Envoy sidecars injected along side each service, the architecture will look like this:
+
+![bookinfoistio](media/bookinfo-istio.png)
 
 ## Use the application <a name="use-the-application"/>
 
