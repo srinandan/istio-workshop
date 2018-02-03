@@ -54,7 +54,7 @@ Enable the Kubernetes Engine API:
 ![api_services](media/apis_and_services.png)
 
 2. Check if the Kubernetes APIs are enabled
-![checkapis](media/check_enabled_.png)
+![checkapis](media/check_enabled.png)
 
 3. If you **CANNOT** find this in your project, then Kubernetes APIs are not enabled. Proceed further. Otherwise skip the following steps.
 
@@ -62,7 +62,7 @@ Enable the Kubernetes Engine API:
 ![enableapiservice](media/enable_apis_services.png)
 
 5. Start typing _**ku**_ in the search bar
-![search](media/search_kub_.png) 
+![search](media/search_kub.png) 
 
 6. Select _Google Kubernetes Engine API_
 
