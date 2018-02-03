@@ -221,7 +221,9 @@ Once you have the address and port, check that the BookInfo app is running with 
 
 ```
 curl -o /dev/null -s -w "%{http_code}\n" http://${GATEWAY_URL}/productpage
-200```
+
+200
+```
 
 Then point your browser to _**http://$GATEWAY\_URL/productpage**_ to view the BookInfo web page. If you refresh the page several times, you should see different versions of reviews shown in the product page, presented in a round robin style (red stars, black stars, no stars), since we haven&#39;t yet used Istio to control the version routing
 
