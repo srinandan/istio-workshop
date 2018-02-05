@@ -567,7 +567,6 @@ OUTPUT:
 curl: (35) SSL received a record that exceeded the maximum permissible length.
 ```
 **NOTE**: If security (mTLS) was **NOT** enabled on the services, you would have see the output (status 200)
-
 #### Accessing the Service
 
 We are now going to access the service with the appropriate keys and certs.
