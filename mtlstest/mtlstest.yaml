@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mtlstest
+  labels:
+    app: mtlstest
+spec:
+  ports:
+  - port: 8080
+    name: http
+  selector:
+    app: mtlstest
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: mtlstest
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: mtlstest
+    spec:
+      containers:
+        - name: mtlstest
+          image: gcr.io/PROJECT_ID/mtlstest:latest
+          imagePullPolicy: Always
+          ports:
+          - containerPort: 8080

@@ -19,9 +19,10 @@ In this lab, you will learn how to install and configure Istio, an open source f
 10. [Monitoring for Istio](#monitoring-for-istio)
 11. [Generating a Service Graph](#generate-graph)
 12. [Fault Injection](#fault-injection)
-13. [Uninstall Istio](#uninstall-istio)
-14. [Cleanup resources](#cleanup-resources)
-15. [What's next?](#what-next?)
+13. [Security](#security)
+14. [Uninstall Istio](#uninstall-istio)
+15. [Cleanup resources](#cleanup-resources)
+16. [What's next?](#what-next?)
 
 
 ## Introduction <a name="introduction"/>
@@ -418,7 +419,11 @@ Select a trace from the list, and you will now see something similar to the foll
  ![monitoring](media/monitoring-1.png)
 
 ## Generating a Service Graph <a name="generate-graph"/>
-
+**NOTE**: With version 0.5, there is a problem with the service graph build. If you're using 0.5 you cannot complete this lab. Find out which version of istio you're running by:
+```
+istioctl version
+```
+ 
 This task shows you how to generate a graph of services within an Istio mesh. As part of this task, you will install the ServiceGraph addon and use the web-based interface for viewing service graph of the service mesh.
 
 First, install the Service Graph addon :
@@ -465,6 +470,123 @@ You will see that the webpage loads in about 6 seconds. The reviews section will
 The reason that the entire reviews service has failed is because our BookInfo application has a bug. The timeout between the productpage and reviews service is less (3s + 1 retry = 6s total) than the timeout between the reviews and ratings service (10s). These kinds of bugs can occur in typical enterprise applications where different teams develop different microservices independently. Istio’s fault injection rules help you identify such anomalies without impacting end users.
 
 **Notice that we are restricting the failure impact to user “jason” only. If you login as any other user, you would not experience any delays**
+
+## Security <a name="security"/>
+### Testing Istio mutual TLS authentication
+Through this task, you will learn how to:
+* Verify the Istio mutual TLS Authentication setup
+* Manually test the authentication
+#### Verifying Istio CA
+Verify the cluster-level CA is running:
+
+```
+kubectl get deploy -l istio=istio-ca -n istio-system
+```
+OUTPUT:
+```
+NAME       DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+istio-ca   1         1         1            1           1m
+```
+#### Verify Service Configuration
+#### Verify AuthPolicy setting in ConfigMap
+```
+kubectl get configmap istio -o yaml -n istio-system | grep authPolicy | head -1
+```
+Istio mutual TLS authentication is enabled if the line **authPolicy: MUTUAL_TLS** is uncommented (doesn’t have a **#**).
+#### Testing the authentication setup
+We are going to install a sample application into the cluster and try and access the services directly.
+
+1. Switch to the sample app folder
+```
+git clone https://github.com/srinandan/istio-workshop.git && istio-workshop/mtlstest
+```
+
+2. Set the PROJECT_ID as the environment variable
+```
+export PROJECT_ID=test
+```
+
+3. Edit the Kubernetes configuration file (mtlstest.yaml) and add the PROJECT_ID
+```
+vi mtlstest.yaml
+```
+
+change this and add the project id:
+```
+image: gcr.io/PROJECT_ID/mtlstest:latest
+```
+save the file.
+
+4. Build the docker image and push it to GCR (Google Container Repo)
+```
+./dockerbuild.sh
+```
+NOTE: you may have to run "chmod +x dockerbuild.sh"
+
+5. Deploy the app to Kubernetes
+```
+./k8ssetup.sh
+```
+
+6. Verify the application was deployed successfully
+```
+kubectl get pods
+```
+
+OUTPUT:
+```
+NAME          TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
+details       ClusterIP   10.59.254.1     <none>        9080/TCP   12m
+kubernetes    ClusterIP   10.59.240.1     <none>        443/TCP    18m
+mtlstest      ClusterIP   10.59.253.170   <none>        8080/TCP   7m
+productpage   ClusterIP   10.59.251.133   <none>        9080/TCP   12m
+ratings       ClusterIP   10.59.251.105   <none>        9080/TCP   12m
+reviews       ClusterIP   10.59.250.46    <none>        9080/TCP   12m
+```
+NOTE: The cluster IP for the **details** app. This app is running on port 9080
+
+7. Access the mtltest pod
+```
+kubectl exec -it mtlstest-bbf7bd6c-9rmwn /bin/bash
+```
+
+8. Run cURL to access to the details app
+```
+curl -k -v https://10.59.254.1:9080/details/0
+```
+
+OUTPUT:
+```
+* About to connect() to 10.59.254.1 port 9080 (#0)
+*   Trying 10.59.254.1...
+* Connected to 10.59.254.1 (10.59.254.1) port 9080 (#0)
+* Initializing NSS with certpath: sql:/etc/pki/nssdb
+* NSS error -12263 (SSL_ERROR_RX_RECORD_TOO_LONG)
+* SSL received a record that exceeded the maximum permissible length.
+* Closing connection 0
+curl: (35) SSL received a record that exceeded the maximum permissible length.
+```
+**NOTE**: If security (mTLS) was **NOT** enabled on the services, you would have see the output like this:
+```
+curl http://10.19.249.209:9080/details/0 -v
+* About to connect() to 10.19.249.209 port 9080 (#0)
+*   Trying 10.19.249.209...
+* Connected to 10.19.249.209 (10.19.249.209) port 9080 (#0)
+> GET /details/0 HTTP/1.1
+> User-Agent: curl/7.29.0
+> Host: 10.19.249.209:9080
+> Accept: */*
+>
+< HTTP/1.1 200 OK
+< content-type: application/json
+< server: envoy
+< date: Sun, 04 Feb 2018 23:45:38 GMT
+< content-length: 178
+< x-envoy-upstream-service-time: 9
+<
+* Connection #0 to host 10.19.249.209 left intact
+{"id":0,"author":"William Shakespeare","year":1595,"type":"paperback","pages":200,"publisher":"PublisherA","language":"English","ISBN-10":"1234567890","ISBN-13":"123-1234567890"}
+```
 
 ## Uninstall Istio <a name="uninstall-istio"/>
 
