@@ -488,7 +488,7 @@ NAME       DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
 istio-ca   1         1         1            1           1m
 ```
 #### Verify Service Configuration
-#### Verify AuthPolicy setting in ConfigMap
+Verify AuthPolicy setting in ConfigMap
 ```
 kubectl get configmap istio -o yaml -n istio-system | grep authPolicy | head -1
 ```
@@ -498,7 +498,7 @@ We are going to install a sample application into the cluster and try and access
 
 1. Switch to the sample app folder
 ```
-git clone https://github.com/srinandan/istio-workshop.git && istio-workshop/mtlstest
+git clone https://github.com/srinandan/istio-workshop.git && cd istio-workshop/mtlstest
 ```
 
 2. Set the PROJECT_ID as the environment variable
@@ -552,7 +552,7 @@ kubectl exec -it mtlstest-bbf7bd6c-9rmwn /bin/bash
 
 8. Run cURL to access to the details app
 ```
-curl -k -v https://10.59.254.1:9080/details/0
+curl -k -v https://details:9080/details/0
 ```
 
 OUTPUT:
@@ -566,27 +566,91 @@ OUTPUT:
 * Closing connection 0
 curl: (35) SSL received a record that exceeded the maximum permissible length.
 ```
-**NOTE**: If security (mTLS) was **NOT** enabled on the services, you would have see the output like this:
+**NOTE**: If security (mTLS) was **NOT** enabled on the services, you would have see the output (status 200)
+
+#### Accessing the Service
+
+We are now going to access the service with the appropriate keys and certs.
+
+1. Get the CA Root Cert, Certificate and Key from Kubernetes secrets
 ```
-curl http://10.19.249.209:9080/details/0 -v
-* About to connect() to 10.19.249.209 port 9080 (#0)
-*   Trying 10.19.249.209...
-* Connected to 10.19.249.209 (10.19.249.209) port 9080 (#0)
+kubectl get secret istio.default -o jsonpath='{.data.root-cert\.pem}' | base64 --decode > root-cert.pem
+kubectl get secret istio.default -o jsonpath='{.data.cert-chain\.pem}' | base64 --decode > cert-chain.pem
+kubectl get secret istio.default -o jsonpath='{.data.key\.pem}' | base64 --decode > key.pem
+```
+
+2. Copy the files to the mtlstest POD
+```
+kubectl cp root-cert.pem mtlstest-bbf7bd6c-gfpjk:/tmp -c mtlstest
+kubectl cp cert-chain.pem mtlstest-bbf7bd6c-gfpjk:/tmp -c mtlstest
+kubectl cp key.pem mtlstest-bbf7bd6c-gfpjk:/tmp -c mtlstest
+```
+
+3. Start a bash to the mtlstest POD
+```
+kubectl get pods
+```
+OUTPUT:
+```
+NAME                              READY     STATUS    RESTARTS   AGE
+details-v1-845458947b-4xt2j       2/2       Running   0          5h
+mtlstest-bbf7bd6c-gfpjk           2/2       Running   0          45m
+productpage-v1-54d4776d48-z8xxv   2/2       Running   0          5h
+```
+
+```
+kubectl exec -it mtlstest-bbf7bd6c-gfpjk /bin/bash
+```
+
+4. Move the PEM files to the appropriate folder (/etc/certs - which is the default folder)
+```
+mkdir /etc/certs
+```
+```
+mv /*.pem /etc/certs/
+```
+
+5. Create a new user and group
+**NOTE:** Envoy does **NOT** intercept traffic from "root" user. Therefore we will create a test user
+```
+ groupadd mtlstest
+ useradd mtlstest -g mtlstest
+```
+6. Change to the test user "mtlstest"
+```
+su - mtlstest
+```
+
+7. Access the application
+```
+curl -v http://details:9080/details/0
+```
+OUTPUT:
+```
+* About to connect() to details port 9080 (#0)
+*   Trying 10.59.254.1...
+* Connected to details (10.59.254.1) port 9080 (#0)
 > GET /details/0 HTTP/1.1
 > User-Agent: curl/7.29.0
-> Host: 10.19.249.209:9080
+> Host: details:9080
 > Accept: */*
 >
 < HTTP/1.1 200 OK
 < content-type: application/json
 < server: envoy
-< date: Sun, 04 Feb 2018 23:45:38 GMT
+< date: Mon, 05 Feb 2018 04:44:14 GMT
 < content-length: 178
-< x-envoy-upstream-service-time: 9
+< x-envoy-upstream-service-time: 54
 <
-* Connection #0 to host 10.19.249.209 left intact
-{"id":0,"author":"William Shakespeare","year":1595,"type":"paperback","pages":200,"publisher":"PublisherA","language":"English","ISBN-10":"1234567890","ISBN-13":"123-1234567890"}
+* Connection #0 to host details left intact
+{"id":0,"author":"William Shakespeare","year":1595,"type":"paperback","pages":200,"publisher":"PublisherA","language":"English","ISBN-10":"1234567890","ISBN-13":"123-1234567890"}[mtlstest@mtlstest-bbf7bd6c-gfpjk ~]
 ```
+**NOTE**: 
+1. You didn't have to specify _https_ when accessing the service.
+2. Envoy automatically established mTLS between the consumer (mtlstest) and the provider (details) 
+
+### Further Reading
+Learn more about the design principles behind Istio’s automatic mTLS authentication between all services in this [blog](https://istio.io/blog/istio-auth-for-microservices.html)
 
 ## Uninstall Istio <a name="uninstall-istio"/>
 
