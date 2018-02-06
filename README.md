@@ -647,6 +647,73 @@ OUTPUT:
 **NOTE**: 
 1. You didn't have to specify _https_ when accessing the service.
 2. Envoy automatically established mTLS between the consumer (mtlstest) and the provider (details) 
+#### Preventing Unauthorized access
+We saw how an application (mtlstest) was able access the service with the necessary key and cert. Istio also helps you prevent such access. In the application we have, the _details_ application must only be accessed by the _productpage_ application. 
+
+We are first going to create a service account for the _productpage_ application. For more information about service accounts, please refer [here](https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/). Run the command:
+```
+kubectl apply -f <(istioctl kube-inject -f bookinfo-add-serviceaccount.yaml)
+```
+
+Output:
+```
+serviceaccount "bookinfo-productpage" created
+Warning: kubectl apply should be used on resource created by either kubectl create --save-config or kubectl apply
+deployment "productpage-v1" configured
+```
+**NOTE**: It is safe to ignore this warning.
+
+We are now going to deploy a mixer rule that denies access to other services (services that are not _productpage_). Review this snippet:
+```
+spec:
+  match: destination.labels["app"] == "details" && source.user != "cluster.local/ns/default/sa/bookinfo-productpage"
+  actions:
+  - handler: denyproductpagehandler.denier
+    instances: [ denyproductpagerequest.checknothing ]
+```
+The match string says if the target/destination service is _details_ and the source (service account) is not productpage, then deny access. The term _source.user_ is automatically populated by Envoy during the mTLS handshake. It is the identity of the immediate sender of the request, authenticated by mTLS. Therefore we can trust the value contained within it. Now we will deploy this rule.
+
+```
+istioctl create -f mixer-rule-deny-others.yaml
+```
+Output:
+```
+Created config denier/default/denyproductpagehandler at revision 165636
+Created config checknothing/default/denyproductpagerequest at revision 165637
+Created config rule/default/denyproductpage at revision 165638
+``` 
+
+Now, try to access the service again.
+
+```
+kubectl exec -it mtlstest-bbf7bd6c-gfpjk /bin/bash
+```
+```
+su - mtlstest
+```
+```
+curl -v http://details:9080/details/0
+```
+Output:
+```
+* About to connect() to details port 9080 (#0)
+*   Trying 10.59.254.1...
+* Connected to details (10.59.254.1) port 9080 (#0)
+> GET /details/0 HTTP/1.1
+> User-Agent: curl/7.29.0
+> Host: details:9080
+> Accept: */*
+>
+< HTTP/1.1 403 Forbidden
+< content-length: 67
+< content-type: text/plain
+< date: Tue, 06 Feb 2018 01:03:05 GMT
+< server: envoy
+< x-envoy-upstream-service-time: 35
+<
+* Connection #0 to host details left intact
+PERMISSION_DENIED:denyproductpagehandler.denier.default:Not allowed
+```
 
 ### Further Reading
 Learn more about the design principles behind Istio’s automatic mTLS authentication between all services in this [blog](https://istio.io/blog/istio-auth-for-microservices.html)
