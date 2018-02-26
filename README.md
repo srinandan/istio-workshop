@@ -503,7 +503,7 @@ git clone https://github.com/srinandan/istio-workshop.git && cd istio-workshop/m
 
 2. Set the PROJECT_ID as the environment variable
 ```
-export PROJECT_ID=test
+export PROJECT_ID=$(gcloud info --format='value(config.project)')
 ```
 
 3. Edit the Kubernetes configuration file (mtlstest.yaml) and add the PROJECT_ID
