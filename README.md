@@ -743,6 +743,99 @@ deployment 'productpage-v1' deleted
 
 For the current release, uninstalling Istio core components also deletes the RBAC permissions, the istio-system namespace, and hierarchically all resources under it. It is safe to ignore errors for non-existent resources because they may have been deleted hierarchically.
 
+### Testing Istio JWT Policy
+Through this task, you will learn how to enable JWT validation on specific services in the mesh.
+
+#### Enable JWT Policy
+In this step we will enable the JWT policy on the details service. Take a look at the details-jwt.yaml file. 
+
+The first section is defining how to enable the JWT
+```
+apiVersion: config.istio.io/v1alpha2
+kind: EndUserAuthenticationPolicySpec
+metadata:
+  labels:
+    app: details
+  name: details-auth
+spec:
+  jwts:
+  - issuer: "https://xxxx"
+    jwks_uri: "http://xxxx"
+    forwardJwt: true
+```
+There are two critical pieces here:
+* The _Issuer_, every JWT token must match the issuer specified here
+* The _jwks_url_, this is an endpoint to where [JSON Web Key](https://tools.ietf.org/html/rfc7517) based public keys are hosted. Here is an [example](https://www.googleapis.com/oauth2/v2/certs) from Google. These public keys are used to verify the JWT.
+
+The second setion contains the list of services to enable this feature:
+
+```
+apiVersion: config.istio.io/v1alpha2
+kind: EndUserAuthenticationPolicySpecBinding
+metadata:
+  name: details-auth-binding
+  namespace: default
+spec:
+  policies:
+  - name: details-auth
+    namespace: default
+  services:
+  - name: details
+    namespace: default
+```
+
+Now, apply the policy
+
+```
+kubectl apply -f jwttest/details-jwt.yaml
+```
+
+OUTPUT:
+```
+enduserauthenticationpolicyspec "details-auth" created
+enduserauthenticationpolicyspecbinding "details-auth-binding" created
+```
+
+It takes a couple of minutes for the policy to be deployed. 
+
+1. Once you have waited, login to the mtlstest pod
+
+```
+kubectl exec -it mtlstest-bbf7bd6c-9rmwn /bin/bash
+```
+
+2. Switch to mtlstest user and test
+```
+su - mtlstest
+```
+
+```
+curl -v http://details:9080/details/0
+```
+
+OUTPUT:
+```
+* About to connect() to details port 9080 (#0)
+*   Trying 10.19.240.254...
+* Connected to details (10.19.240.254) port 9080 (#0)
+> GET /details/0 HTTP/1.1
+> User-Agent: curl/7.29.0
+> Host: details:9080
+> Accept: */*
+>
+< HTTP/1.1 401 Unauthorized
+< content-length: 29
+< content-type: text/plain
+< date: Mon, 19 Mar 2018 18:13:25 GMT
+< server: envoy
+< x-envoy-upstream-service-time: 7
+<
+* Connection #0 to host details left intact
+Required JWT token is missing
+```
+
+This is expected, we did not pass a JWT token.
+
 ## Cleanup resources <a name="cleanup-resources"/>
 
 In addition to uninstalling Istio, you should also delete the Kubernetes cluster created in the setup phase (to save on cost and to be a good cloud citizen):
