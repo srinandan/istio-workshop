@@ -1,0 +1,26 @@
+---
+apiVersion: config.istio.io/v1alpha2
+kind: EndUserAuthenticationPolicySpec
+metadata:
+  labels:
+    app: details 
+  name: details-auth
+spec:
+  jwts:
+  - issuer: "https://amer-demo13-test.apigee.net/edgemicro-auth/token"
+    jwks_uri: "http://amer-demo13-test.apigee.net/edgemicro-auth/jwkPublicKeys"
+    forwardJwt: true
+---
+apiVersion: config.istio.io/v1alpha2
+kind: EndUserAuthenticationPolicySpecBinding
+metadata:
+  name: details-auth-binding
+  namespace: default 
+spec:
+  policies:
+  - name: details-auth
+    namespace: default 
+  services:
+  - name: details 
+    namespace: default 
+---
