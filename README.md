@@ -97,10 +97,10 @@ To create a new cluster that meets these requirements, including alpha features,
 ```
     gcloud container clusters create hello-istio \
     --machine-type=n1-standard-2 \
-    --num-nodes=5 \
+    --num-nodes=6 \
     --no-enable-legacy-authorization \
     --zone=us-west1-b \
-    --cluster-version=1.8.7-gke.1
+    --cluster-version=1.8.8-gke.0
 ```
 
 Setup Kubernetes CLI Content:
