@@ -91,7 +91,7 @@ The requirements for this Istio lab are as follows:
 
 - your cluster should use Kubernetes 1.8.0 or newer, which includes [role-based access control (RBAC)](https://cloud-dot-devsite.googleplex.com/container-engine/docs/role-based-access-control) support.
 
-To create a new cluster that meets these requirements, including alpha features, run the following commands (this assumes that you have correctly set a zone as indicated in the setup) :
+To create a new cluster that meets these requirements, run the following commands (this assumes that you have correctly set a zone as indicated in the setup) :
 
 ```
     gcloud container clusters create hello-istio \
