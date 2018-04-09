@@ -90,7 +90,6 @@ Once connected to the cloud shell, you should see that you are already authentic
 The requirements for this Istio lab are as follows:
 
 - your cluster should use Kubernetes 1.8.0 or newer, which includes [role-based access control (RBAC)](https://cloud-dot-devsite.googleplex.com/container-engine/docs/role-based-access-control) support.
-- you need to [create your cluster with alpha feature support](https://cloud.google.com/container-engine/docs/alpha-clusters), as Istio makes use of [initializers](https://kubernetes.io/docs/admin/extensible-admission-controllers/#enable-initializers-alpha-feature) to [automatically install the Istio Proxy into every Pod](https://istio.io/docs/setup/kubernetes/sidecar-injection.html#automatic-sidecar-injection)
 
 To create a new cluster that meets these requirements, including alpha features, run the following commands (this assumes that you have correctly set a zone as indicated in the setup) :
 
@@ -100,7 +99,6 @@ To create a new cluster that meets these requirements, including alpha features,
     --num-nodes=6 \
     --zone=us-west1-b \
     --cluster-version=1.8.8-gke.0
-    --enable-kubernetes-alpha
 ```
 
 Setup Kubernetes CLI Content:
