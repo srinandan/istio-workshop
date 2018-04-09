@@ -3,7 +3,7 @@ Estimated duration: 60 minutes
 
 ![Istio](media/istio.png)
 
-## Summary 
+## Summary
 In this lab, you will learn how to install and configure Istio, an open source framework for connecting, securing, and managing microservices, on Google Kubernetes Engine, Google's hosted Kubernetes product. You will also deploy an Istio-enabled multi-service application.
 
 # Table of Contents
@@ -62,7 +62,7 @@ Enable the Kubernetes Engine API:
 ![enableapiservice](media/enable_apis_services.png)
 
 5. Start typing _**ku**_ in the search bar
-![search](media/search_kub.png) 
+![search](media/search_kub.png)
 
 6. Select _Google Kubernetes Engine API_
 
@@ -90,15 +90,13 @@ Once connected to the cloud shell, you should see that you are already authentic
 The requirements for this Istio lab are as follows:
 
 - your cluster should use Kubernetes 1.8.0 or newer, which includes [role-based access control (RBAC)](https://cloud-dot-devsite.googleplex.com/container-engine/docs/role-based-access-control) support.
-- you need to [create your cluster with alpha feature support](https://cloud.google.com/container-engine/docs/alpha-clusters), as Istio makes use of [initializers](https://kubernetes.io/docs/admin/extensible-admission-controllers/#enable-initializers-alpha-feature) to [automatically install the Istio Proxy into every Pod](https://istio.io/docs/setup/kubernetes/sidecar-injection.html#automatic-sidecar-injection)
 
-To create a new cluster that meets these requirements, including alpha features, run the following commands (this assumes that you have correctly set a zone as indicated in the setup) :
+To create a new cluster that meets these requirements, run the following commands (this assumes that you have correctly set a zone as indicated in the setup) :
 
 ```
     gcloud container clusters create hello-istio \
     --machine-type=n1-standard-2 \
     --num-nodes=6 \
-    --no-enable-legacy-authorization \
     --zone=us-west1-b \
     --cluster-version=1.8.8-gke.0
 ```
@@ -257,7 +255,7 @@ Now that it&#39;s deployed, let&#39;s see the BookInfo application in action.
 First you need to get the ingress IP and port, as follows:
 
 ```
-kubectl get ingress -o wide 
+kubectl get ingress -o wide
 ```
 OUTPUT:
 ```
@@ -360,7 +358,7 @@ Once the v2 version has been tested to our satisfaction, we could use Istio to s
 For now, let&#39;s clean up the routing rules:
 
 ```
-istioctl delete -f samples/bookinfo/kube/route-rule-all-v1.yaml -n default 
+istioctl delete -f samples/bookinfo/kube/route-rule-all-v1.yaml -n default
 istioctl delete -f samples/bookinfo/kube/route-rule-reviews-test-v2.yaml -n default
 ```
 
@@ -423,7 +421,7 @@ Select a trace from the list, and you will now see something similar to the foll
 ```
 istioctl version
 ```
- 
+
 This task shows you how to generate a graph of services within an Istio mesh. As part of this task, you will install the ServiceGraph addon and use the web-based interface for viewing service graph of the service mesh.
 
 First, install the Service Graph addon :
@@ -644,11 +642,11 @@ OUTPUT:
 * Connection #0 to host details left intact
 {"id":0,"author":"William Shakespeare","year":1595,"type":"paperback","pages":200,"publisher":"PublisherA","language":"English","ISBN-10":"1234567890","ISBN-13":"123-1234567890"}[mtlstest@mtlstest-bbf7bd6c-gfpjk ~]
 ```
-**NOTE**: 
+**NOTE**:
 1. You didn't have to specify _https_ when accessing the service.
-2. Envoy automatically established mTLS between the consumer (mtlstest) and the provider (details) 
+2. Envoy automatically established mTLS between the consumer (mtlstest) and the provider (details)
 #### Preventing Unauthorized access
-We saw how an application (mtlstest) was able access the service with the necessary key and cert. Istio also helps you prevent such access. In the application we have, the _details_ application must only be accessed by the _productpage_ application. 
+We saw how an application (mtlstest) was able access the service with the necessary key and cert. Istio also helps you prevent such access. In the application we have, the _details_ application must only be accessed by the _productpage_ application.
 
 We are first going to create a service account for the _productpage_ application. For more information about service accounts, please refer [here](https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/). Run the command:
 ```
@@ -681,7 +679,7 @@ Output:
 Created config denier/default/denyproductpagehandler at revision 165636
 Created config checknothing/default/denyproductpagerequest at revision 165637
 Created config rule/default/denyproductpage at revision 165638
-``` 
+```
 
 Now, try to access the service again.
 
@@ -723,7 +721,7 @@ Learn more about the design principles behind Istio’s automatic mTLS authentic
 Here&#39;s how to uninstall Istio.
 
 ```
-kubectl delete -f samples/bookinfo/kube/bookinfo.yaml 
+kubectl delete -f samples/bookinfo/kube/bookinfo.yaml
 ```
 OUTPUT:
 ```
@@ -738,7 +736,7 @@ deployment 'reviews-v3' deleted
 service    'productpage' deleted
 deployment 'productpage-v1' deleted
 ```
- 
+
 ```kubectl delete -f install/kubernetes/istio-auth.yaml```
 
 For the current release, uninstalling Istio core components also deletes the RBAC permissions, the istio-system namespace, and hierarchically all resources under it. It is safe to ignore errors for non-existent resources because they may have been deleted hierarchically.
@@ -747,7 +745,7 @@ For the current release, uninstalling Istio core components also deletes the RBA
 Through this task, you will learn how to enable JWT validation on specific services in the mesh.
 
 #### Enable JWT Policy
-In this step we will enable the JWT policy on the details service. Take a look at the details-jwt.yaml file. 
+In this step we will enable the JWT policy on the details service. Take a look at the details-jwt.yaml file.
 
 The first section is defining how to enable the JWT
 ```
@@ -796,7 +794,7 @@ enduserauthenticationpolicyspec "details-auth" created
 enduserauthenticationpolicyspecbinding "details-auth-binding" created
 ```
 
-It takes a couple of minutes for the policy to be deployed. 
+It takes a couple of minutes for the policy to be deployed.
 
 1. Once you have waited, login to the mtlstest pod
 
@@ -840,7 +838,7 @@ This is expected, we did not pass a JWT token.
 
 In addition to uninstalling Istio, you should also delete the Kubernetes cluster created in the setup phase (to save on cost and to be a good cloud citizen):
 
-```gcloud container clusters delete hello-istio``` 
+```gcloud container clusters delete hello-istio```
 
 OUTPUT
 ```
