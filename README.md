@@ -737,7 +737,7 @@ Now, try to access the service again.
 ```
 kubectl exec -it mtlstest-bbf7bd6c-gfpjk /bin/bash
 ```
-```
+
 ```
 curl -v http://details:9080/details/0
 ```
