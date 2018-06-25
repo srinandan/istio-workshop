@@ -280,9 +280,15 @@ OUTPUT:
 ```
 
 Based on this information (Address), set the GATEWAY\_URL environment variable:
+```
+export GATEWAY_URL=`kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.status.loadBalancer.ingress[0].ip}'`
+```
 
-```export GATEWAY_URL=kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.status.loadBalancer.ingress[0].ip}'```
+Define the ingress gateway for the application:
 
+```
+istioctl create -f samples/bookinfo/routing/bookinfo-gateway.yaml
+``` 
 
 Check that the BookInfo app is running with curl:
 
@@ -294,6 +300,7 @@ OUTPUT:
 ```
 200
 ```
+
 
 Then point your browser to _**http://$GATEWAY\_URL/productpage**_ to view the BookInfo web page. If you refresh the page several times, you should see different versions of reviews shown in the product page, presented in a round robin style (red stars, black stars, no stars), since we haven&#39;t yet used Istio to control the version routing
 
