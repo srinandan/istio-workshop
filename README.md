@@ -21,8 +21,6 @@ In this lab, you will learn how to install and configure Istio, an open source f
 12. [Fault Injection](#fault-injection)
 13. [Security](#security)
 14. [Uninstall Istio](#uninstall-istio)
-15. [Cleanup resources](#cleanup-resources)
-
 
 ## Introduction <a name="introduction"/>
 
@@ -872,8 +870,6 @@ OUTPUT:
 Origin authentication failed.
 ```
 This is expected, we did not pass a JWT token. It is left to the reader on how to obtain a JWT and pass it in the header.
-
-## Cleanup resources <a name="cleanup-resources"/>
 
 ## Uninstall Istio <a name="uninstall-istio"/>
 
