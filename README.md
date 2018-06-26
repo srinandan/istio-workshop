@@ -265,6 +265,12 @@ With Envoy sidecars injected along side each service, the architecture will look
 
 ![bookinfoistio](media/bookinfo-istio.png)
 
+Finally, expose the service to be consumeable on the ingress
+
+```
+istioctl create -f samples/bookinfo/routing/bookinfo-gateway.yaml
+```
+
 ## Use the application <a name="use-the-application"/>
 
 Now that it&#39;s deployed, let&#39;s see the BookInfo application in action.
@@ -762,6 +768,93 @@ PERMISSION_DENIED:denyproductpagehandler.denier.default:Not allowed
 
 ### Further Reading
 Learn more about the design principles behind Istio’s automatic mTLS authentication between all services in this [blog](https://istio.io/blog/istio-auth-for-microservices.html)
+
+### Testing Istio RBAC
+Istio Role-Based Access Control (RBAC) provides namespace-level, service-level, method-level access control for services in the Istio Mesh. It features:
+* Role-Based semantics, which is simple and easy to use.
+* Service-to-service and endUser-to-Service authorization.
+* Flexibility through custom properties support in roles and role-bindings.
+
+In this part of the lab, we will create a service role  that gives read only access to a certain set of services. First we enable RBAC.
+```
+istioctl create -f samples/bookinfo/kube/istio-rbac-enable.yaml
+```
+OUTPUT:
+```
+Created config authorization/istio-system/requestcontext at revision 197480
+Created config rbac/istio-system/handler at revision 197481
+Created config rule/istio-system/rbaccheck at revision 197482
+```
+
+Now, create a service role and service role binding
+```
+apiVersion: "config.istio.io/v1alpha2"
+kind: ServiceRole
+metadata:
+  name: service-viewer
+  namespace: default
+spec:
+  rules:
+  - services: ["*"]
+    methods: ["GET"]
+    constraints:
+    - key: "app"
+      values: ["productpage", "details", "reviews", "ratings", "mtlstest"]
+```
+
+This service role allows only the GET operation on all the services listed in `values`. Deploy the rule
+
+```
+istioctl create -f rbac/istio-rbac-namespace.yaml
+```
+
+OUTPUT:
+```
+Created config service-role/default/service-viewer at revision 196402
+Created config service-role-binding/default/bind-service-viewer at revision 196403
+```
+
+Access the mtlstest POD
+```
+kubectl exec -it mtlstest-854c4c9b85-gwr82 /bin/bash
+```
+
+Try to access the application
+```
+curl -v http://details:9080/details/0
+```
+
+This should work successfully because we did not block GET calls. Now let's try to create/POST
+```
+curl -v http://details:9080/details/0 -X POST -d '{}'
+```
+
+OUTPUT:
+```
+Note: Unnecessary use of -X or --request, POST is already inferred.
+*   Trying 10.35.255.72...
+* TCP_NODELAY set
+* Connected to details (10.35.255.72) port 9080 (#0)
+> POST /details/0 HTTP/1.1
+> Host: details:9080
+> User-Agent: curl/7.58.0
+> Accept: */*
+> Content-Length: 2
+> Content-Type: application/x-www-form-urlencoded
+>
+* upload completely sent off: 2 out of 2 bytes
+< HTTP/1.1 403 Forbidden
+< content-length: 68
+< content-type: text/plain
+< date: Tue, 26 Jun 2018 05:39:51 GMT
+< server: envoy
+< x-envoy-upstream-service-time: 7
+<
+* Connection #0 to host details left intact
+PERMISSION_DENIED:handler.rbac.istio-system:RBAC: permission denied.
+```
+
+The create/POST failed. You can learn more about Istio RBAC [here](https://istio.io/docs/concepts/security/rbac/)
 
 ### Testing Istio JWT Policy
 Through this task, you will learn how to enable JWT validation on specific services in the mesh.
