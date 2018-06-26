@@ -119,15 +119,19 @@ Use your Apigee credentials to login in.
 ![Login](../media/login.png)
 
 2. Select Publish from the Edge UI
+
 ![publish](../media/publish.png)
 
 3. Create a new product
+
 ![new-product](../media/New-product.png)
 
 4. Select API Products under publish
+
 ![products](../media/product.png)
 
 5. Enter Product details
+
 * Name: A Product Name
 * Environment: which environment the API Product is available in
 * Resouces: Which API Paths you want to expose
@@ -139,9 +143,11 @@ Use your Apigee credentials to login in.
 Generally speaking, you would now go to the Apigee portal and request keys for the API Product we just created. To keep the lab simple, we will create those artifacts a portal would have through the Edge UI (Admin interface)
 
 1. Select Developer App from the Edge UI
+
 ![dev-app](../media/apps.png)
 
 2. Create a new Developer App
+
 ![new-app](../media/new-app.png)
 
 3. Enter Developer App details
@@ -152,6 +158,7 @@ Generally speaking, you would now go to the Apigee portal and request keys for t
 ![app-details](../media/app-details.png)
 
 4. Make a note of the credentials
+
 ![credentials](../media/credentials.png)
 
 ## Obtain a JWT Token <a name="obtain">
