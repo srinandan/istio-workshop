@@ -47,7 +47,7 @@ You will see most of the messages as `component "component-name" unchanged`. Thi
 
 Configuring Apigee for Istio is a four step process:
 1. Configure your Apigee Edge instance to manage Istio (issue credentials, productize APIs in a service mesh, communicate securely to Apigee Edge etc.)
-2. Configure Istio to create definitions for Apigee ()
+2. Configure Istio to create definitions for Apigee
 
 The first thing you'll need to do is provision your Apigee environment to work with the Istio adapter. 
 This will install a proxy, set up a certificate, and generate some credentials for you:  
@@ -116,16 +116,16 @@ The first step will be to create an API Product in Apigee Edge.
 
 1. Login to Apigee Edge
 Use your Apigee credentials to login in.
-![Login](media/login.png)
+![Login](../media/login.png)
 
 2. Select Publish from the Edge UI
-![publish](media/publish.png)
+![publish](../media/publish.png)
 
 3. Create a new product
-![new-product](media/New-product.png)
+![new-product](../media/New-product.png)
 
 4. Select API Products under publish
-![products](media/product.png)
+![products](../media/product.png)
 
 5. Enter Product details
 * Name: A Product Name
@@ -133,26 +133,26 @@ Use your Apigee credentials to login in.
 * Resouces: Which API Paths you want to expose
 * Attributes: Add a custom attribute called `istio-services`. The values are a comma separated list of Istio services (FQDN).
 
-![productdetails](media/product-details.png)
+![productdetails](../media/product-details.png)
 
 ## Consume an API Product <a name="consume"/>
 Generally speaking, you would now go to the Apigee portal and request keys for the API Product we just created. To keep the lab simple, we will create those artifacts a portal would have through the Edge UI (Admin interface)
 
 1. Select Developer App from the Edge UI
-![dev-app](media/apps.png)
+![dev-app](../media/apps.png)
 
 2. Create a new Developer App
-![new-app](media/new-app.png)
+![new-app](../media/new-app.png)
 
 3. Enter Developer App details
 * Name: A new for the developer app
 * Developer: The name of the developer who is authoring the app (client application)
 * Product: A list of API Products
 
-![app-details](media/app-details.png)
+![app-details](../media/app-details.png)
 
 4. Make a note of the credentials
-![credentials](media/credentials.png)
+![credentials](../media/credentials.png)
 
 ## Obtain a JWT Token <a name="obtain">
 We will now use the `apigee-istio` CLI interface to obtain a new JWT token. The CLI interface is for convenience only. In production, client applications will use APIs to get an new JWT token.
@@ -183,5 +183,5 @@ We have now successfully exposed an API to consumers outside the service mesh.
 ## View API Analytics <a name="analytics"/>
 The Apigee adapter for Istio is able to send API usage/metrics asyncronously  to the Edge UI. In about 5-6 mins, you should be able to see usage metric for details showing up like this:
 
-![analytics](media/analytics.png)
+![analytics](../media/analytics.png)
 
