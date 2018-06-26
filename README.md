@@ -20,7 +20,8 @@ In this lab, you will learn how to install and configure Istio, an open source f
 11. [Generating a Service Graph](#generate-graph)
 12. [Fault Injection](#fault-injection)
 13. [Security](#security)
-14. [Uninstall Istio](#uninstall-istio)
+14. [API Management](#apim)
+15. [Uninstall Istio](#uninstall-istio)
 
 ## Introduction <a name="introduction"/>
 
@@ -964,6 +965,7 @@ Origin authentication failed.
 ```
 This is expected, we did not pass a JWT token. It is left to the reader on how to obtain a JWT and pass it in the header.
 
+## API Management <a name="apim"/>
 To see how you can manage your APIs, take a look at this next section [API Management for Istio](./apimanagement/README.md)
 
 ## Uninstall Istio <a name="uninstall-istio"/>

@@ -14,7 +14,7 @@ In this lab, you will learn how to configure and use Apigee API Management for I
 1. This lab assumes you have completed the last step of the previous lab (Enabling JWT in the security section).
 2. You must have an [Apigee Edge](https://login.apigee.com) account. If you need one, you can create one [here](https://login.apigee.com/sign_up).
 
-## Installing Apigee API Management for Istio <a name="install">
+## Installing Apigee API Management for Istio <a name="install"/>
 Apigee Istio Mixer Adapter releases can be found [here](https://github.com/apigee/istio-mixer-adapter/releases)
 
 Download the appropriate release package for your operating system and extract it. You should a file list similar to:
@@ -161,7 +161,7 @@ Generally speaking, you would now go to the Apigee portal and request keys for t
 
 ![credentials](../media/credentials.png)
 
-## Obtain a JWT Token <a name="obtain">
+## Obtain a JWT Token <a name="obtain"/>
 We will now use the `apigee-istio` CLI interface to obtain a new JWT token. The CLI interface is for convenience only. In production, client applications will use APIs to get an new JWT token.
 
 ```
