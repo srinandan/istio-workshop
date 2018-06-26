@@ -964,6 +964,8 @@ Origin authentication failed.
 ```
 This is expected, we did not pass a JWT token. It is left to the reader on how to obtain a JWT and pass it in the header.
 
+To see how you can manage your APIs, take a look at this next section [API Management for Istio](./apimanagement/README.md)
+
 ## Uninstall Istio <a name="uninstall-istio"/>
 
 Here&#39;s how to uninstall Istio.

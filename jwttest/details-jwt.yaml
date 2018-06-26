@@ -1,11 +1,11 @@
 apiVersion: "authentication.istio.io/v1alpha1"
 kind: Policy
 metadata:
-  name: auth-spec
+  name: details-auth-spec
   namespace: default
 spec:
   targets:
-  - name: helloworld
+  - name: details
   peers:
   - mtls:
   origins:
