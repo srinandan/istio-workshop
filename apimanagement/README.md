@@ -9,6 +9,7 @@ In this lab, you will learn how to configure and use Apigee API Management for I
 5. [Consume an API Product](#consume)
 6. [Obtain a JWT Token](#obtain)
 7. [View API Analytics](#analytics)
+8. [Full API Management](#fullapi)
 
 ## Setup and Requirements <a name="setup-and-requirements"/>
 1. This lab assumes you have completed the last step of the previous lab (Enabling JWT in the security section).
@@ -122,13 +123,13 @@ Use your Apigee credentials to login in.
 
 ![publish](../media/publish.png)
 
-3. Create a new product
-
-![new-product](../media/New-product.png)
-
-4. Select API Products under publish
+3. Select API Products under publish
 
 ![products](../media/product.png)
+
+4. Create a new product
+
+![new-product](../media/New-product.png)
 
 5. Enter Product details
 
@@ -192,3 +193,30 @@ The Apigee adapter for Istio is able to send API usage/metrics asyncronously  to
 
 ![analytics](../media/analytics.png)
 
+## Expose the API to third parties <a name="fullapi"/>
+When exposing APIs externally, especially to third parties, the API Management policies you want enforced are typically different (more security focused) than when the API is used internally.
+
+For APIs are exposed externally, you'd probably want:
+* Some form of rate limiting
+* JSON/XML threat protection (Minimizes the risk posed by content-level attacks by enabling you to specify limits on various XXML/SON structures, such as arrays and strings)
+* Quotas (different from the ones you'd give internal users)
+
+Apigee's API gateway provides with exactly such policies. In this part of the lab, you will create a proxy in Apigee Edge and have external users proxy requests through the Apigee Gateway.
+
+```
+./importproxy.sh {username} {password} {orgname} {envname}
+```
+
+This should deploy a proxy called `details` in your org and deploy it to the environment that was specified in the CLI.
+
+### Access the API
+Try accessing the API from the endpoint published in Apigee.
+
+```
+curl https://org-env.apigee.net/details/0 -H "Authorization: Bearer $TOKEN"
+```
+
+## Restrict Access to the internal API
+The details API is available on a public IP `GATEWAY_URL`. So what prevents an external user to bypass Apigee and access the endpoint directly. It is a good thing we still require OAuth tokens to access the endpoint, but we still want only Apigee's proxy to access the endpoint.
+
+TODO - next steps
