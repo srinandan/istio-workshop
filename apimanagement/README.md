@@ -117,19 +117,20 @@ The first step will be to create an API Product in Apigee Edge.
 
 1. Login to Apigee Edge
 Use your Apigee credentials to login in.
-![Login](../media/login.png)
+
+<img src="../media/login.png" width="500px"/>
 
 2. Select Publish from the Edge UI
 
-![publish](../media/publish.png)
+<img src="../media/publish.png" width="200px"/>
 
 3. Select API Products under publish
 
-![products](../media/product.png)
+<img src="../media/product.png" width="200px"/>
 
 4. Create a new product
 
-![new-product](../media/New-product.png)
+<img src="../media/New-product.png" width="200px"/>
 
 5. Enter Product details
 
