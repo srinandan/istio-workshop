@@ -1,7 +1,7 @@
 # Istio Service Management and API Management Workshop
 Estimated duration: 60 minutes
 
-![Istio](media/istio.png)
+<img src="media/istio.png" align="middle" width="150px"/>
 
 ## Summary 
 In this lab, you will learn how to install and configure Istio, an open source framework for connecting, securing, and managing microservices, on Google Kubernetes Engine, Google's hosted Kubernetes product. You will also deploy an Istio-enabled multi-service application. Once you complete this lab, you can try managing APIs with Istio and Apigee Edge.
