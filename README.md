@@ -20,7 +20,7 @@ In this lab, you will learn how to install and configure Istio, an open source f
 11. [Generating a Service Graph](#generate-graph)
 12. [Fault Injection](#fault-injection)
 13. [Security](#security)
-14. [API Management](#apim)
+14. [API Management](./apimanagement/README.md)
 15. [Uninstall Istio](#uninstall-istio)
 
 ## Introduction <a name="introduction"/>
@@ -288,8 +288,9 @@ OUTPUT:
 
 Based on this information (Address), set the GATEWAY\_URL environment variable:
 
-```export GATEWAY_URL=kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.status.loadBalancer.ingress[0].ip}'```
-
+```
+export GATEWAY_URL=`kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.status.loadBalancer.ingress[0].ip}'`
+```
 
 Check that the BookInfo app is running with curl:
 
@@ -422,6 +423,20 @@ You can see how long each microservice call took, including the Istio checks.
 
 You can read the [documentation page](https://istio.io/docs/tasks/telemetry/distributed-tracing.html) for further details on Istio&#39;s distributed request tracing.
 
+To stop the port forward, 
+```
+ctrl + c
+```
+Then bring the process to the foreground
+```
+fg
+```
+Then stop it again
+```
+ctrl + c
+```
+
+
 ## Monitoring for Istio <a name="monitoring-for-istio"/>
 
 This task shows you how to setup and use the Istio Dashboard to monitor mesh traffic. As part of this task, you will install the Grafana Istio addon and use the web-based interface for viewing service mesh traffic data.
@@ -445,6 +460,19 @@ Select a trace from the list, and you will now see something similar to the foll
 
  ![monitoring](media/monitoring-1.png)
 
+ To stop the port forward, 
+```
+ctrl + c
+```
+Then bring the process to the foreground
+```
+fg
+```
+Then stop it again
+```
+ctrl + c
+```
+
 ## Generating a Service Graph <a name="generate-graph"/>
  
 This task shows you how to generate a graph of services within an Istio mesh. As part of this task, you will install the ServiceGraph addon and use the web-based interface for viewing service graph of the service mesh.
@@ -461,6 +489,19 @@ NOTE: Edit the browser to add `/dotviz` manually. Like this: `https://8080-dot-2
 You will now see something similar to the following:
 
 ![servicegraph](media/servicegraph-1.png)
+
+To stop the port forward, 
+```
+ctrl + c
+```
+Then bring the process to the foreground
+```
+fg
+```
+Then stop it again
+```
+ctrl + c
+```
 
 ## Fault Injection <a name="fault-injection"/>
 

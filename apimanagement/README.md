@@ -167,14 +167,10 @@ Generally speaking, you would now go to the Apigee portal and request keys for t
 We will now use the `apigee-istio` CLI interface to obtain a new JWT token. The CLI interface is for convenience only. In production, client applications will use APIs to get an new JWT token.
 
 ```
-apigee-istio token create -o amer-demo13 -e test -i xxx -s xxx 
+export TOKEN=`apigee-istio token create -o amer-demo13 -e test -i xxx -s xxx`
 ```
 
-OUTPUT:
-```
-eyJraWQiOi...{really long string}
-```
-Store the output in an environment variable `export TOKEN=ey....`
+The output is stored in an environment variable.
 
 ### Make an API Call
 Now, we are ready to try the API again:
