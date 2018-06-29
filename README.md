@@ -288,9 +288,7 @@ OUTPUT:
 
 Based on this information (Address), set the GATEWAY\_URL environment variable:
 
-```
-export GATEWAY_URL=`kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.status.loadBalancer.ingress[0].ip}'`
-```
+```export GATEWAY_URL=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.status.loadBalancer.ingress[0].ip}')```
 
 Check that the BookInfo app is running with curl:
 
