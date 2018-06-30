@@ -146,11 +146,11 @@ Generally speaking, you would now go to the Apigee portal and request keys for t
 
 1. Select Developer App from the Edge UI
 
-![dev-app](../media/apps.png)
+<img src="../media/apps.png" width="200px"/>
 
 2. Create a new Developer App
 
-![new-app](../media/new-app.png)
+<img src="../media/new-app.png" width="200px"/>
 
 3. Enter Developer App details
 * Name: A new for the developer app
