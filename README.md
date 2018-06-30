@@ -1,5 +1,5 @@
 # Istio Service Management and API Management Workshop
-Estimated duration: 60 minutes
+Estimated duration: 2-4 hours
 
 <img src="media/istio.png" align="middle" width="150px"/>
 
@@ -15,21 +15,29 @@ In this lab, you will learn how to install and configure Istio, an open source f
 6. [Deploying an application](#deploying-an-application)
 7. [Use the application](#use-the-application)
 8. [Dynamically change request routing](#dynamically-change-request-routing)
-9. [View metrics and tracing](#viewing-metrics-and-tracing)
-10. [Monitoring for Istio](#monitoring-for-istio)
-11. [Generating a Service Graph](#generate-graph)
-12. [Fault Injection](#fault-injection)
-13. [Security](#security)
-14. [API Management](./apimanagement/README.md)
-15. [Uninstall Istio](#uninstall-istio)
+9. Monitoring and Observability
+   a. [View metrics and tracing](#viewing-metrics-and-tracing)
+   b. [Monitoring for Istio](#monitoring-for-istio)
+   c. [Generating a Service Graph](#generate-graph)
+10. [Fault Injection](#fault-injection)
+11. [Circuit Breaker](#circuit)
+12. [Security](#security)
+    a. [Testing Istio mutual TLS authentication](#mutual)
+    b. [Testing Istio RBAC](#rbac)
+    c. [Testing Istio JWT Policy](#jwt)
+13. [API Management](./apimanagement/README.md)
+    a. Installing API Management
+    b. Publish the API as a product
+    c. Consume an API Product
+    d. Obtain an OAuth token
+    e. View API Analytics
+14. [Uninstall Istio](#uninstall-istio)
 
 ## Introduction <a name="introduction"/>
 
 [Istio](http://istio.io) is an open source framework for connecting, securing, and managing microservices, including services running on Google Kubernetes Engine (GKE). It lets you create a network of deployed services with load balancing, service-to-service authentication, monitoring, and more, without requiring any changes in service code.
 
 You add Istio support to services by deploying a special Envoy sidecar proxy to each of your application&#39;s pods in your environment that intercepts all network communication between microservices, configured and managed using Istio'&#39;'s control plane functionality.
-
-This codelab shows you how to install and configure Istio on Kubernetes Engine, deploy an Istio-enabled multi-service application, and dynamically change request routing.
 
 ## Setup and Requirements <a name="setup-and-requirements"/>
 
@@ -553,9 +561,80 @@ Clean up the fault rules with the command:
 ```
 kubectl delete -f samples/bookinfo/routing/route-rule-all-v1.yaml
 ```
+## Circuit Breaker <a name="circuit"/>
+This task demonstrates the circuit-breaking capability for resilient applications. Circuit breaking allows developers to write applications that limit the impact of failures, latency spikes, and other undesirable effects of network peculiarities.
+
+### Define a Destination Rule
+DestinationRule defines policies that apply to traffic intended for a service after routing has occurred. These rules specify configuration for load balancing, connection pool size from the sidecar, and outlier detection settings to detect and evict unhealthy hosts from the load balancing pool.
+
+Run the following command:
+```
+cat <<EOF | istioctl create -f -
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: details-breaker
+  namespace: default
+spec:
+  host: details.default.svc.cluster.local
+  trafficPolicy:
+    tls:
+      mode: ISTIO_MUTUAL
+    connectionPool:
+      tcp:
+        maxConnections: 1
+      http:
+        http1MaxPendingRequests: 1
+        maxRequestsPerConnection: 1
+    outlierDetection:
+      http:
+        consecutiveErrors: 1
+        interval: 1s
+        baseEjectionTime: 3m
+        maxEjectionPercent: 100
+```
+This enables a destination rule that applies a circuit breaker to the details service. 
+
+### Setup a Client application
+
+Run the command:
+```
+kubectl apply -f <(istioctl kube-inject -f samples/httpbin/sample-client/fortio-deploy.yaml)
+```
+
+Store the pod name in an env var
+
+```
+export FORTIO_POD=$(kubectl get pod | grep fortio | awk '{ print $1 }')
+```
+
+Generate some load
+```
+kubectl exec -it $FORTIO_POD  -c fortio /usr/local/bin/fortio -- load -c 2 -qps 0 -n 20 -loglevel Warning http://details:9080/details/0
+```
+OUTPUT:
+```
+Fortio 1.0.1 running at 0 queries per second, 1->1 procs, for 20 calls: http://details:9080/details/0
+Starting at max qps with 2 thread(s) [gomax 1] for exactly 20 calls (10 per thread + 0)
+05:18:06 W http_client.go:604> Parsed non ok code 503 (HTTP/1.1 503)
+....
+Sockets used: 13 (for perfect keepalive, would be 2)
+Code 200 : 8 (40.0 %)
+Code 503 : 12 (60.0 %)
+Response Header Sizes : count 20 avg 63.3 +/- 77.53 min 0 max 159 sum 1266
+Response Body/Total Sizes : count 20 avg 264.7 +/- 58.42 min 217 max 337 sum 5294
+All done 20 calls (plus 0 warmup) 4.333 ms avg, 320.2 qps
+```
+
+Only 40% of requests made it through, the rest were blocked by the circuit breaker.
+
+### Cleanup
+```
+istioctl delete destinationrule details-breaker
+```
 
 ## Security <a name="security"/>
-### Testing Istio mutual TLS authentication
+### Testing Istio mutual TLS authentication <a name="mutual"/>
 Through this task, you will learn how to:
 * Verify the Istio mutual TLS Authentication setup
 * Manually test the authentication
@@ -809,7 +888,7 @@ PERMISSION_DENIED:denyproductpagehandler.denier.default:Not allowed
 ### Further Reading
 Learn more about the design principles behind Istio’s automatic mTLS authentication between all services in this [blog](https://istio.io/blog/istio-auth-for-microservices.html)
 
-### Testing Istio RBAC
+### Testing Istio RBAC <a name="rbac"/>
 Istio Role-Based Access Control (RBAC) provides namespace-level, service-level, method-level access control for services in the Istio Mesh. It features:
 * Role-Based semantics, which is simple and easy to use.
 * Service-to-service and endUser-to-Service authorization.
@@ -896,7 +975,14 @@ PERMISSION_DENIED:handler.rbac.istio-system:RBAC: permission denied.
 
 The create/POST failed. You can learn more about Istio RBAC [here](https://istio.io/docs/concepts/security/rbac/)
 
-### Testing Istio JWT Policy
+Delete RBAC resources
+
+```
+istioctl delete -f rbac/istio-rbac-namespace.yaml
+istioctl delete -f samples/bookinfo/kube/istio-rbac-enable.yaml
+```
+
+### Testing Istio JWT Policy <a name="jwt"/>
 Through this task, you will learn how to enable JWT validation on specific services in the mesh.
 
 #### Scenario
