@@ -19,7 +19,7 @@ Create a new GCE instance. Let's call it `meshexpand` (this name will be used la
 * Boot Disk: Google Drawfork Ubuntu 16.04
 * Allow HTTP and HTTPS traffic
 
-<img src="../media/istio.png"/>
+<img src="../media/create-instance.png"/>
 
 2. In the Google Cloud Shell, run the following commands
    - Generate ssh keys
