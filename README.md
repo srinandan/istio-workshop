@@ -16,21 +16,21 @@ In this lab, you will learn how to install and configure Istio, an open source f
 7. [Use the application](#use-the-application)
 8. [Dynamically change request routing](#dynamically-change-request-routing)
 9. Monitoring and Observability
-   a. [View metrics and tracing](#viewing-metrics-and-tracing)
-   b. [Monitoring for Istio](#monitoring-for-istio)
-   c. [Generating a Service Graph](#generate-graph)
+   - [View metrics and tracing](#viewing-metrics-and-tracing)
+   - [Monitoring for Istio](#monitoring-for-istio)
+   - [Generating a Service Graph](#generate-graph)
 10. [Fault Injection](#fault-injection)
 11. [Circuit Breaker](#circuit)
 12. [Security](#security)
-    a. [Testing Istio mutual TLS authentication](#mutual)
-    b. [Testing Istio RBAC](#rbac)
-    c. [Testing Istio JWT Policy](#jwt)
+    - [Testing Istio mutual TLS authentication](#mutual)
+    - [Testing Istio RBAC](#rbac)
+    - [Testing Istio JWT Policy](#jwt)
 13. [API Management](./apimanagement/README.md)
-    a. Installing API Management
-    b. Publish the API as a product
-    c. Consume an API Product
-    d. Obtain an OAuth token
-    e. View API Analytics
+    - Installing API Management
+    - Publish the API as a product
+    - Consume an API Product
+    - Obtain an OAuth token
+    - View API Analytics
 14. [Uninstall Istio](#uninstall-istio)
 
 ## Introduction <a name="introduction"/>
