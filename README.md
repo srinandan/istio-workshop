@@ -650,7 +650,8 @@ OUTPUT:
 NAME            DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
 istio-citadel   1         1         1            1           3h
 ```
-#### Verify Service Configuration
+#### Verify Service Configuration 
+NOTE: Although this method works on Istio 0.8, it will be deprecated in the upcoming releases.
 Check installation mode. If mutual TLS is enabled by default (e.g istio-demo-auth.yaml was used when installing Istio), you can expect to see uncommented authPolicy: MUTUAL_TLS in the configmap
 ```
 kubectl get configmap istio -o yaml -n istio-system | grep authPolicy | head -1
@@ -661,6 +662,22 @@ Check destination rule. Starting with Istio 0.8, destination rule’s traffic po
 
 ```
 kubectl get destinationrules.networking.istio.io --all-namespaces -o yaml
+```
+
+#### Enable mTLS on all services
+NOTE: Starting Istio 0.8, enabling mTLS is controlled through the authentication policy.
+
+To enable mTLS all services deployed in the default namesapce,
+```
+cat <<EOF | istioctl create -f -
+apiVersion: authentication.istio.io/v1alpha1
+kind: Policy
+metadata:
+  name: mtls-enable-default
+  namespace: default
+spec:
+  peers:
+  - mtls:
 ```
 
 #### Testing the authentication setup

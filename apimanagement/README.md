@@ -210,7 +210,7 @@ This should deploy a proxy called `details` in your org and deploy it to the env
 Try accessing the API from the endpoint published in Apigee.
 
 ```
-curl https://org-env.apigee.net/details/0 -H "Authorization: Bearer $TOKEN"
+curl https://{org}-{env}.apigee.net/details/0 -H "Authorization: Bearer $TOKEN"
 ```
 
 ## Restrict Access to the internal API
