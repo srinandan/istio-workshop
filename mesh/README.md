@@ -249,6 +249,33 @@ OUTPUT:
 2018-06-30T22:33:16.347889Z     info    Details: &Endpoints{ObjectMeta:k8s_io_apimachinery_pkg_apis_meta_v1.ObjectMeta{Name:meshexpand,GenerateName:,
 ....
 ```
+Confirm the changes.
+```
+kubectl describe svc meshexpand
+```
+Expected output:
+```
+Name:              meshexpand
+Namespace:         default
+Labels:            <none>
+Annotations:       alpha.istio.io/kubernetes-serviceaccounts=10570444441-compute@developer.gserviceaccount.com
+Selector:          <none>
+Type:              ClusterIP
+IP:                10.35.254.116
+Port:              http  8080/TCP
+TargetPort:        8080/TCP
+Endpoints:         10.138.0.17:8080
+Session Affinity:  None
+Events:            <none>
+```
+if your `Annotations` look like `alpha.istio.io/kubernetes-serviceaccounts=default` then,
+
+```
+kubectl edit svc meshexpand
+```
+replace `default` with the service account and save the file.
+
+
 9. Configure the sidecar
 Edit the file `/var/lib/istio/envoy/sidecar.env`
 Add the followling lines
@@ -331,7 +358,30 @@ Access the service
 ```
 curl meshexpand.default.svc.cluster.local:8080 -v
 ```
-NOTE: this is a WIP. I'm missing a step. The service is not accessible. 
+
+OUTPUT:
+```
+* Rebuilt URL to: meshexpand.default.svc.cluster.local:8080/
+*   Trying 10.35.254.116...
+* TCP_NODELAY set
+* Connected to meshexpand.default.svc.cluster.local (10.35.254.116) port 8080 (#0)
+> GET / HTTP/1.1
+> Host: meshexpand.default.svc.cluster.local:8080
+> User-Agent: curl/7.58.0
+> Accept: */*
+>
+< HTTP/1.1 200 OK
+< x-powered-by: Express
+< content-type: text/html; charset=utf-8
+< content-length: 12
+< etag: W/"c-Lve95gjOVATpfV8EL5X4nxwjKHE"
+< date: Sat, 07 Jul 2018 01:49:52 GMT
+< x-envoy-upstream-service-time: 7
+< server: envoy
+<
+* Connection #0 to host meshexpand.default.svc.cluster.local left intact
+Hello World!
+```
 
 14. Access the service from outside the mesh
 
