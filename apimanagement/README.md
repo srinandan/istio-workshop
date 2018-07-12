@@ -214,6 +214,71 @@ curl https://{org}-{env}.apigee.net/details/0 -H "Authorization: Bearer $TOKEN"
 ```
 
 ## Restrict Access to the internal API
-The details API is available on a public IP `GATEWAY_URL`. So what prevents an external user to bypass Apigee and access the endpoint directly. It is a good thing we still require OAuth tokens to access the endpoint, but we still want only Apigee's proxy to access the endpoint.
+The details API is available on a public IP `GATEWAY_URL`. Nothing prevents an external user to bypass Apigee and access the endpoint directly. It is a good thing we still require OAuth tokens to access the endpoint, but we still want only Apigee's proxy to access the endpoint.
 
-TODO - next steps
+
+Istio provides a native adapter (listchecker) to whitelist or blacklist IPs. The following steps will show you how to use it.
+
+1. Obtain the IP address of Apigee Edge
+```
+curl -X GET https://api.enterprise.apigee.com/v1/o/{org}/eips -u {user}:{pass}
+```
+OUTPUT:
+```
+{
+  "podEips" : [ {
+    "eips" : [ ],
+    "pod" : {
+      "name" : "pxx0rt000-0",
+      "region" : "us-east-1"
+    }
+  }, {
+    "eips" : [ "xxx.xx.xxx.xx", "xx.xxx.xxx.xx" ],
+    "pod" : {
+      "name" : "pxx0mp000-0",
+      "region" : "us-east-1"
+    }
+  } ]
+}
+```
+The `eips` field contains the IP addresses assigned to the Apigee gateways.
+
+2. Configure Mixer to allow only those IPs
+This section contains three parts:
+  a. listchecker: provide a list of ips to whitelist
+  b. listentry: provide the location of the ip
+  c. rule: when do i apply this adapter, in this case, when the call comes to the ingress
+
+```
+apiVersion: "config.istio.io/v1alpha2"
+kind: listchecker
+metadata:
+  name: ip-listchecker
+  namespace: istio-system
+spec:
+  entryType: IP_ADDRESSES
+  overrides: [ "107.23.127.92", "54.210.253.51" ]
+  blacklist: false
+---
+apiVersion: config.istio.io/v1alpha2
+kind: listentry
+metadata:
+  name: ip-value
+  namespace: istio-system
+spec:
+  value: source.ip
+---
+apiVersion: "config.istio.io/v1alpha2"
+kind: rule
+metadata:
+  name: ip-rule
+  namespace: istio-system
+spec:
+  match: destination.labels["istio"] == "ingressgateway"
+  actions:
+  - handler: ip-listchecker.listchecker
+    instances:
+    - ip-value.listentry
+```
+
+[WIP: this step is not complete yet]
