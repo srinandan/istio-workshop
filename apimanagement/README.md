@@ -10,8 +10,8 @@ In this lab, you will learn how to configure and use Apigee API Management for I
 6. [Obtain a JWT Token](#obtain)
 7. [View API Analytics](#analytics)
 8. [Full API Management](#fullapi)
-   a. Expose APIs to third parties
-   b. Restrict Access to the internal APIs
+   - [Expose APIs to third parties](#accessapi)
+   - [Restrict access to IPs](#restrictip)
 
 ## Setup and Requirements <a name="setup-and-requirements"/>
 1. This lab assumes you have completed the last step of the previous lab (Enabling JWT in the security section).
@@ -208,14 +208,14 @@ Apigee's API gateway provides with exactly such policies. In this part of the la
 
 This should deploy a proxy called `details` in your org and deploy it to the environment that was specified in the CLI.
 
-### Access the API
+### Access the API <a name="accessapi"/>
 Try accessing the API from the endpoint published in Apigee.
 
 ```
 curl https://{org}-{env}.apigee.net/details/0 -H "Authorization: Bearer $TOKEN"
 ```
 
-## Restrict Access to the internal API
+## Restrict access to IPs <a name="restrictip"/>
 The details API is available on a public IP `GATEWAY_URL`. Nothing prevents an external user to bypass Apigee and access the endpoint directly. It is a good thing we still require OAuth tokens to access the endpoint, but we still want only Apigee's proxy to access the endpoint.
 
 
@@ -247,9 +247,9 @@ The `eips` field contains the IP addresses assigned to the Apigee gateways.
 
 2. Configure Mixer to allow only those IPs
 This section contains three parts:
-  a. listchecker: provide a list of ips to whitelist
-  b. listentry: provide the location of the ip
-  c. rule: when do i apply this adapter, in this case, when the call comes to the ingress
+* listchecker: provide a list of ips to whitelist
+* listentry: provide the location of the ip
+* rule: when do i apply this adapter, in this case, when the call comes to the ingress
 
 ```
 apiVersion: "config.istio.io/v1alpha2"
