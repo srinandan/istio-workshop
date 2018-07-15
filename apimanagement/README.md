@@ -10,6 +10,8 @@ In this lab, you will learn how to configure and use Apigee API Management for I
 6. [Obtain a JWT Token](#obtain)
 7. [View API Analytics](#analytics)
 8. [Full API Management](#fullapi)
+   a. Expose APIs to third parties
+   b. Restrict Access to the internal APIs
 
 ## Setup and Requirements <a name="setup-and-requirements"/>
 1. This lab assumes you have completed the last step of the previous lab (Enabling JWT in the security section).
@@ -274,7 +276,7 @@ metadata:
   name: ip-rule
   namespace: istio-system
 spec:
-  match: destination.labels["istio"] == "ingressgateway"
+  match: destination.labels["istio"] == "ingressgateway" && source.service == "details.default.svc.cluster.local"
   actions:
   - handler: ip-listchecker.listchecker
     instances:

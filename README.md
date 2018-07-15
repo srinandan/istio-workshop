@@ -278,8 +278,51 @@ With Envoy sidecars injected along side each service, the architecture will look
 Finally, expose the service to be consumeable on the ingress
 
 ```
-istioctl create -f samples/bookinfo/routing/bookinfo-gateway.yaml
+cat <<EOF | kubectl apply -f -
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: bookinfo
+  namespace: default
+spec:
+  gateways:
+  - bookinfo-gateway
+  hosts:
+  - '*'
+  http:
+  - match:
+    - uri:
+        exact: /productpage
+    - uri:
+        exact: /login
+    - uri:
+        exact: /logout
+    - uri:
+        prefix: /api/v1/products
+    route:
+    - destination:
+        host: productpage
+        port:
+          number: 9080
 ```
+
+```
+cat <<EOF | kubectl apply -f -
+kind: Gateway
+metadata:
+  name: bookinfo-gateway
+spec:
+  selector:
+    istio: ingressgateway # use istio default controller
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "*"
+```
+
 
 ## Use the application <a name="use-the-application"/>
 
