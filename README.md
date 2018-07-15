@@ -24,11 +24,11 @@ In this lab, you will learn how to install and configure Istio, an open source f
     - [Testing Istio mutual TLS authentication](#mutual)
     - [Testing Istio RBAC](#rbac)
     - [Testing Istio JWT Policy](#jwt)
-13. [Mesh Expansion](./mesh/README.md)
-14. [Miscellaneous](./misc/README.md)
-    - Websokets
+13. [Mesh Expansion](./mesh)
+14. [Miscellaneous](./misc)
+    - Websockets
     - Rate Limiting
-15. [API Management](./apimanagement/README.md)
+15. [API Management](./apimanagement)
     - Installing API Management
     - Publish the API as a product
     - Consume an API Product
