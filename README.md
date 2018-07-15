@@ -1,5 +1,4 @@
 # Istio Service Management and API Management Workshop
-Estimated duration: 2-4 hours
 
 <img src="media/istio.png" align="middle" width="150px"/>
 
@@ -26,13 +25,18 @@ In this lab, you will learn how to install and configure Istio, an open source f
     - [Testing Istio RBAC](#rbac)
     - [Testing Istio JWT Policy](#jwt)
 13. [Mesh Expansion](./mesh/README.md)
-14. [API Management](./apimanagement/README.md)
+14. [Miscellaneous](./misc/README.md)
+    - Websokets
+    - Rate Limiting
+15. [API Management](./apimanagement/README.md)
     - Installing API Management
     - Publish the API as a product
     - Consume an API Product
     - Obtain an OAuth token
     - View API Analytics
-15. [Uninstall Istio](#uninstall-istio)
+    - Expose APIs to third parties
+    - Restrict access to IPs    
+16. [Uninstall Istio](#uninstall-istio)
 
 ## Introduction <a name="introduction"/>
 
@@ -306,6 +310,7 @@ spec:
         host: productpage
         port:
           number: 9080
+EOF
 ```
 
 ```
@@ -323,6 +328,7 @@ spec:
       protocol: HTTP
     hosts:
     - "*"
+EOF
 ```
 
 
@@ -392,13 +398,11 @@ istioctl get destinationrules
 ```
 OUTPUT:
 ```
-NAME              KIND                                           NAMESPACE
-details           DestinationRule.networking.istio.io.v1alpha3   default
-productpage       DestinationRule.networking.istio.io.v1alpha3   default
-ratings           DestinationRule.networking.istio.io.v1alpha3   default
-reviews           DestinationRule.networking.istio.io.v1alpha3   default
-istio-policy      DestinationRule.networking.istio.io.v1alpha3   istio-system
-istio-telemetry   DestinationRule.networking.istio.io.v1alpha3   istio-system
+DESTINATION-RULE NAME   HOST          SUBSETS                      NAMESPACE   AGE
+details                 details       v1,v2                        default     13s
+productpage             productpage   v1                           default     13s
+ratings                 ratings       v1,v2,v2-mysql,v2-mysql-vm   default     13s
+reviews                 reviews       v1,v2,v3                     default     13s
 ```
 
 Go back to the Bookinfo application (http://$GATEWAY\_URL/productpage) in your browser. You should see the BookInfo application productpage displayed. Notice that the productpage is displayed with no rating stars since reviews:v1 does not access the ratings service.
@@ -696,21 +700,14 @@ NAME            DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
 istio-citadel   1         1         1            1           3h
 ```
 #### Verify Service Configuration 
-NOTE: Although this method works on Istio 0.8, it will be deprecated in the upcoming releases.
-Check installation mode. If mutual TLS is enabled by default (e.g istio-demo-auth.yaml was used when installing Istio), you can expect to see uncommented authPolicy: MUTUAL_TLS in the configmap
-```
-kubectl get configmap istio -o yaml -n istio-system | grep authPolicy | head -1
-```
-Istio mutual TLS authentication is enabled if the line **authPolicy: MUTUAL_TLS** is uncommented (doesn’t have a **#**).
-
-Check destination rule. Starting with Istio 0.8, destination rule’s traffic policy is used to configure client side to use (or not use) mutual TLS.
-
+Check installation mode. If mutual TLS is enabled by default (e.g istio-demo-auth.yaml was used when installing Istio), you can expect to see uncommented 
 ```
 kubectl get destinationrules.networking.istio.io --all-namespaces -o yaml
 ```
 
 #### Enable mTLS on all services
-NOTE: Starting Istio 0.8, enabling mTLS is controlled through the authentication policy.
+NOTE 1: Starting Istio 0.8, enabling mTLS is controlled through the authentication policy.
+NOTE 2: A policy with no targets (i.e., apply to all targets in namespace) must be named `default`
 
 To enable mTLS all services deployed in the default namesapce,
 ```
@@ -718,11 +715,12 @@ cat <<EOF | istioctl create -f -
 apiVersion: authentication.istio.io/v1alpha1
 kind: Policy
 metadata:
-  name: mtls-enable-default
+  name: default
   namespace: default
 spec:
   peers:
   - mtls:
+EOF
 ```
 
 #### Testing the authentication setup
@@ -1071,6 +1069,7 @@ Edit the file to expose the details service
         host: details
         port:
            number: 9080
+        subset: v1
 ```
 
 Deploy the virtual service
