@@ -167,19 +167,20 @@ OUTPUT:
 
 ```
 NAME            CLUSTER-IP      EXTERNAL-IP       PORT(S)                       AGE
-grafana                    ClusterIP      10.35.242.92    <none>           3000/TCP                                                              8d
-istio-citadel              ClusterIP      10.35.253.85    <none>           8060/TCP,9093/TCP                                                     8d
-istio-egressgateway        ClusterIP      10.35.255.153   <none>           80/TCP,443/TCP                                                        8d
-istio-ingressgateway       LoadBalancer   10.35.240.252   35.xxx.xxx.xxx   80:31380/TCP,443:31390/TCP,31400:31400/TCP                            8d
-istio-pilot                ClusterIP      10.35.244.241   <none>           15003/TCP,15005/TCP,15007/TCP,15010/TCP,15011/TCP,8080/TCP,9093/TCP   8d
-istio-policy               ClusterIP      10.35.245.176   <none>           9091/TCP,15004/TCP,9093/TCP                                           8d
-istio-sidecar-injector     ClusterIP      10.35.245.49    <none>           443/TCP                                                               8d
-istio-statsd-prom-bridge   ClusterIP      10.35.254.183   <none>           9102/TCP,9125/UDP                                                     8d
-istio-telemetry            ClusterIP      10.35.247.113   <none>           9091/TCP,15004/TCP,9093/TCP,42422/TCP                                 8d
-prometheus                 ClusterIP      10.35.246.22    <none>           9090/TCP                                                              8d
-servicegraph               ClusterIP      10.35.253.226   <none>           8088/TCP                                                              8d
-tracing                    LoadBalancer   10.35.254.155   35.xxx.xxx.xx    80:30040/TCP                                                          8d
-zipkin                     ClusterIP      10.35.243.89    <none>           9411/TCP                                                              8d
+grafana                    ClusterIP      10.35.241.104   <none>           3000/TCP                                                              18m
+istio-citadel              ClusterIP      10.35.252.114   <none>           8060/TCP,9093/TCP                                                     18m
+istio-egressgateway        ClusterIP      10.35.255.114   <none>           80/TCP,443/TCP                                                        18m
+istio-galley               ClusterIP      10.35.240.201   <none>           443/TCP                                                               18m
+istio-ingressgateway       LoadBalancer   10.35.247.245   35.203.186.203   80:31380/TCP,443:31390/TCP,31400:31400/TCP                            18m
+istio-pilot                ClusterIP      10.35.243.14    <none>           15003/TCP,15005/TCP,15007/TCP,15010/TCP,15011/TCP,8080/TCP,9093/TCP   18m
+istio-policy               ClusterIP      10.35.251.186   <none>           9091/TCP,15004/TCP,9093/TCP                                           18m
+istio-sidecar-injector     ClusterIP      10.35.253.208   <none>           443/TCP                                                               18m
+istio-statsd-prom-bridge   ClusterIP      10.35.254.35    <none>           9102/TCP,9125/UDP                                                     18m
+istio-telemetry            ClusterIP      10.35.254.188   <none>           9091/TCP,15004/TCP,9093/TCP,42422/TCP                                 18m
+prometheus                 ClusterIP      10.35.253.203   <none>           9090/TCP                                                              18m
+servicegraph               ClusterIP      10.35.250.205   <none>           8088/TCP                                                              18m
+tracing                    ClusterIP      10.35.242.39    <none>           80/TCP                                                                18m
+zipkin                     ClusterIP      10.35.247.252   <none>           9411/TCP                                                              18m
 ```
 
 Then make sure that the corresponding Kubernetes pods are deployed and all containers are up and running.
@@ -191,18 +192,19 @@ kubectl get pods -n istio-system
 OUTPUT:
 ```
 NAME                                READY     STATUS    RESTARTS   AGE
-grafana-cd99bf478-kzrnm                     1/1       Running   0          8d
-istio-citadel-ff5696f6f-hrftv               1/1       Running   0          8d
-istio-egressgateway-7b69fdd5d4-2w94n        1/1       Running   0          8d
-istio-ingressgateway-57b857f6b6-phdp2       1/1       Running   0          8d
-istio-pilot-85ff85f4f5-t8hqb                2/2       Running   0          8d
-istio-policy-6c4f75c5ff-85bct               2/2       Running   0          8d
-istio-sidecar-injector-dbd67c88d-sslp2      1/1       Running   0          8d
-istio-statsd-prom-bridge-6dbb7dcc7f-2dln9   1/1       Running   0          8d
-istio-telemetry-8658f8c97f-s27rx            2/2       Running   0          8d
-istio-tracing-67dbb5b89f-sdv6q              1/1       Running   0          8d
-prometheus-586d95b8d9-mkv2b                 1/1       Running   0          8d
-servicegraph-6d86dfc6cb-fplzg               1/1       Running   0          8d
+grafana-69fc7b47bd-v4qm8                   1/1       Running   0          17m
+istio-citadel-857cf5dc8c-hkdrm             1/1       Running   0          17m
+istio-egressgateway-dbf9c5d7c-87d8s        1/1       Running   0          17m
+istio-galley-6496b645bf-khw6b              1/1       Running   0          17m
+istio-ingressgateway-596bdb588c-zxprt      1/1       Running   0          17m
+istio-pilot-7db88954f4-s26fc               2/2       Running   0          17m
+istio-policy-6bb954c589-9fvqk              2/2       Running   0          17m
+istio-sidecar-injector-57657b649d-vhlmg    1/1       Running   0          17m
+istio-statsd-prom-bridge-59b45fd6d-5n5nd   1/1       Running   0          17m
+istio-telemetry-66bd668dfd-6st47           2/2       Running   0          17m
+istio-tracing-647f8c48f8-fcznc             1/1       Running   0          17m
+prometheus-ffd95f9f6-hz5r4                 1/1       Running   0          17m
+servicegraph-78fddd97cb-9blxc              1/1       Running   0          17m
 ```
 
 When all the pods are running, you can proceed.
