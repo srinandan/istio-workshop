@@ -175,7 +175,7 @@ grafana                    ClusterIP      10.35.241.104   <none>           3000/
 istio-citadel              ClusterIP      10.35.252.114   <none>           8060/TCP,9093/TCP                                                     18m
 istio-egressgateway        ClusterIP      10.35.255.114   <none>           80/TCP,443/TCP                                                        18m
 istio-galley               ClusterIP      10.35.240.201   <none>           443/TCP                                                               18m
-istio-ingressgateway       LoadBalancer   10.35.247.245   35.203.186.203   80:31380/TCP,443:31390/TCP,31400:31400/TCP                            18m
+istio-ingressgateway       LoadBalancer   10.35.247.245   xx.xxx.xxx.xxx   80:31380/TCP,443:31390/TCP,31400:31400/TCP                            18m
 istio-pilot                ClusterIP      10.35.243.14    <none>           15003/TCP,15005/TCP,15007/TCP,15010/TCP,15011/TCP,8080/TCP,9093/TCP   18m
 istio-policy               ClusterIP      10.35.251.186   <none>           9091/TCP,15004/TCP,9093/TCP                                           18m
 istio-sidecar-injector     ClusterIP      10.35.253.208   <none>           443/TCP                                                               18m
