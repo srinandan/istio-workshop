@@ -348,6 +348,7 @@ spec:
   trafficPolicy:
     tls:
       mode: ISTIO_MUTUAL
+EOF
 ```
 13. Access the service from inside the mesh
 Access the mtlstest pod

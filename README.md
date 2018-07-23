@@ -28,6 +28,7 @@ In this lab, you will learn how to install and configure Istio, an open source f
 14. [Miscellaneous](./misc)
     - Websockets
     - Rate Limiting
+    - Expose external services (egress traffic)
 15. [API Management](./apimanagement)
     - Installing API Management
     - Publish the API as a product
