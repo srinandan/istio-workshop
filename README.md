@@ -112,7 +112,7 @@ To create a new cluster that meets these requirements, including alpha features,
     --num-nodes=6 \
     --no-enable-legacy-authorization \
     --zone=us-west1-b \
-    --cluster-version=1.9.7-gke.3
+    --cluster-version=1.9.7-gke.5
 ```
 
 Setup Kubernetes CLI Content:
@@ -244,7 +244,7 @@ The end-to-end architecture of the application is shown below.
 
 We deploy our application directly using kubectl create and its regular YAML deployment file. We will inject Envoy containers into your application pods using istioctl:
 
-```kubectl create -f <(istioctl kube-inject -f samples/bookinfo/kube/bookinfo.yaml)```
+```kubectl create -f <(istioctl kube-inject -f samples/bookinfo/platform/kube/bookinfo.yaml)```
 
 Finally, confirm that the application has been deployed correctly by running the following commands:
 
@@ -285,53 +285,8 @@ With Envoy sidecars injected along side each service, the architecture will look
 Finally, expose the service to be consumeable on the ingress
 
 ```
-cat <<EOF | kubectl apply -f -
-apiVersion: networking.istio.io/v1alpha3
-kind: VirtualService
-metadata:
-  name: bookinfo
-  namespace: default
-spec:
-  gateways:
-  - bookinfo-gateway
-  hosts:
-  - '*'
-  http:
-  - match:
-    - uri:
-        exact: /productpage
-    - uri:
-        exact: /login
-    - uri:
-        exact: /logout
-    - uri:
-        prefix: /api/v1/products
-    route:
-    - destination:
-        host: productpage
-        port:
-          number: 9080
-EOF
+kubectl apply -f samples/bookinfo/networking/bookinfo-gateway.yaml
 ```
-
-```
-cat <<EOF | kubectl apply -f -
-kind: Gateway
-metadata:
-  name: bookinfo-gateway
-spec:
-  selector:
-    istio: ingressgateway # use istio default controller
-  servers:
-  - port:
-      number: 80
-      name: http
-      protocol: HTTP
-    hosts:
-    - "*"
-EOF
-```
-
 
 ## Use the application <a name="use-the-application"/>
 
