@@ -156,8 +156,18 @@ Add the istioctl client to your PATH:
 
 Let&#39;s now install Istio&#39;s core components. We will install the Istio Auth components which enable [**mutual TLS authentication**](https://istio.io/docs/concepts/security/mutual-tls.html) between sidecars:
 
-```kubectl apply -f install/kubernetes/istio-demo-auth.yaml```
+1. Create the custome resource definitions
+```kubectl apply -f install/kubernetes/helm/istio/templates/crds.yaml```
 
+2. Render Istio’s core components to a Kubernetes manifest called istio.yaml
+```helm template install/kubernetes/helm/istio --name istio --namespace istio-system > $HOME/istio.yaml```
+NOTE: See here for details on how to install the [helm client](https://docs.helm.sh/using_helm/).
+
+3. Install the components
+```
+kubectl create namespace istio-system
+kubectl apply -f $HOME/istio.yaml
+```
 This creates the istio-system namespace along with the required RBAC permissions, and deploys Istio-Pilot, Istio-Mixer, Istio-Ingress, Istio-Egress, and Istio-CA (Certificate Authority).
 
 ## Verifying the installation <a name="verifying-the-installation"/>
@@ -244,7 +254,7 @@ The end-to-end architecture of the application is shown below.
 
 We deploy our application directly using kubectl create and its regular YAML deployment file. We will inject Envoy containers into your application pods using istioctl:
 
-```kubectl create -f <(istioctl kube-inject -f samples/bookinfo/kube/bookinfo.yaml)```
+```kubectl create -f <(istioctl kube-inject -f samples/bookinfo/platform/kube/bookinfo.yaml)```
 
 Finally, confirm that the application has been deployed correctly by running the following commands:
 
@@ -378,7 +388,7 @@ No Resouces will be found. Now, create the rule (check out the source yaml file 
 
 Run the command:
 ```
-kubectl apply -f samples/bookinfo/routing/route-rule-all-v1-mtls.yaml -n default
+kubectl apply -f samples/bookinfo/networking/destination-rule-all-mtls.yaml -n default
 ```
 OUTPUT:
 ```
@@ -411,13 +421,13 @@ Go back to the Bookinfo application (http://$GATEWAY\_URL/productpage) in your b
 To test reviews:v2, but only for a certain user, let&#39;s create this rule:
 
 ```
-kubectl apply -f samples/bookinfo/routing/route-rule-reviews-test-v2.yaml -n default
+kubectl apply -f samples/bookinfo/networking/virtual-service-reviews-test-v2.yaml -n default
 ```
 
 Check out the route-rule-reviews-test-v2.yaml file to see how this virtual service is specified :
 
 ```
-$ cat samples/bookinfo/kube/route-rule-reviews-test-v2.yaml
+$ cat samples/bookinfo/networking/virtual-service-reviews-test-v2.yaml
 ```
 OUTPUT:
 ```
@@ -572,8 +582,8 @@ To test our BookInfo application microservices for resiliency, we will inject a 
 Create a fault injection rule to delay traffic coming from user “jason” (our test user)
 
 ```
-kubectl apply -f samples/bookinfo/routing/route-rule-all-v1-mtls.yaml
-kubectl apply -f samples/bookinfo/routing/route-rule-reviews-test-v2.yaml
+kubectl apply -f samples/bookinfo/networking/destination-rule-all-mtls.yaml
+kubectl apply -f samples/bookinfo/networking/virtual-service-reviews-test-v2.yaml
 ```
 
 Run the command:
@@ -599,7 +609,7 @@ As another test of resiliency, we will introduce an HTTP abort to the ratings mi
 Create a fault injection rule to send an HTTP abort for user “jason”
 
 ```
-kubectl apply -f samples/bookinfo/routing/route-rule-ratings-test-abort.yaml
+kubectl apply -f samples/bookinfo/networking/virtual-service-ratings-test-abort.yaml
 ```
 
 #### Observe application behavior
@@ -610,7 +620,7 @@ Login as user “jason”. If the rule propagated successfully to all pods, you 
 Clean up the fault rules with the command:
 
 ```
-kubectl delete -f samples/bookinfo/routing/route-rule-all-v1.yaml
+kubectl delete -f samples/bookinfo/networking/virtual-service-all-v1.yaml
 ```
 ## Circuit Breaker <a name="circuit"/>
 This task demonstrates the circuit-breaking capability for resilient applications. Circuit breaking allows developers to write applications that limit the impact of failures, latency spikes, and other undesirable effects of network peculiarities.
@@ -878,7 +888,7 @@ We saw how an application (mtlstest) was able access the service with the necess
 We are first going to create a service account for the _productpage_ application. For more information about service accounts, please refer [here](https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/). Run the command:
 
 ```
-kubectl apply -f <(istioctl kube-inject -f samples/bookinfo/kube/bookinfo-add-serviceaccount.yaml)
+kubectl apply -f <(istioctl kube-inject -f samples/bookinfo/platform/kube/bookinfo-add-serviceaccount.yaml)
 ```
 
 Output:
@@ -901,14 +911,34 @@ spec:
 ```
 The match string says if the target/destination service is _details_ and the source (service account) is not productpage, then deny access. The term _source.user_ is automatically populated by Envoy during the mTLS handshake. It is the identity of the immediate sender of the request, authenticated by mTLS. Therefore we can trust the value contained within it. 
 
-Edit the file `samples/bookinfo/routing/mixer-rule-deny-serviceaccount.yaml`
-
-Change the match condition to `!="cluster...`
-
-Now we will deploy this rule.
 
 ```
-kubectl create -f samples/bookinfo/routing/mixer-rule-deny-serviceaccount.yaml
+cat << EOF | kubectl create -f - 
+apiVersion: "config.istio.io/v1alpha2"
+kind: denier
+metadata:
+  name: denyproductpagehandler
+spec:
+  status:
+    code: 7
+    message: Not allowed
+---
+apiVersion: "config.istio.io/v1alpha2"
+kind: checknothing
+metadata:
+  name: denyproductpagerequest
+spec:
+---
+apiVersion: "config.istio.io/v1alpha2"
+kind: rule
+metadata:
+  name: denyproductpage
+spec:
+  match: destination.labels["app"] == "details" && source.user != "cluster.local/ns/default/sa/bookinfo-productpage"
+  actions:
+  - handler: denyproductpagehandler.denier
+    instances: [ denyproductpagerequest.checknothing ]
+EOF
 ```
 Output:
 ```
@@ -958,7 +988,7 @@ Istio Role-Based Access Control (RBAC) provides namespace-level, service-level, 
 
 In this part of the lab, we will create a service role  that gives read only access to a certain set of services. First we enable RBAC.
 ```
-istioctl create -f samples/bookinfo/kube/istio-rbac-enable.yaml
+istioctl create -f samples/bookinfo/platform/kube/istio-rbac-enable.yaml
 ```
 OUTPUT:
 ```
@@ -986,7 +1016,7 @@ spec:
 This service role allows only the GET operation on all the services listed in `values`. Deploy the rule
 
 ```
-istioctl create -f rbac/istio-rbac-namespace.yaml
+istioctl create -f samples/bookinfo/platform/kube/istio-rbac-namespace.yaml
 ```
 
 OUTPUT:
@@ -1161,7 +1191,7 @@ To see how you can manage your APIs, take a look at this next section [API Manag
 Here&#39;s how to uninstall Istio.
 
 ```
-kubectl delete -f samples/bookinfo/kube/bookinfo.yaml 
+kubectl delete -f bookinfo/platform/kube/bookinfo.yaml
 ```
 OUTPUT:
 ```
@@ -1177,7 +1207,7 @@ service    'productpage' deleted
 deployment 'productpage-v1' deleted
 ```
  
-```kubectl delete -f install/kubernetes/istio-auth.yaml```
+```kubectl delete -f $HOME/istio.yaml```
 
 In addition to uninstalling Istio, you should also delete the Kubernetes cluster created in the setup phase (to save on cost and to be a good cloud citizen):
 

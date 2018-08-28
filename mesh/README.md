@@ -389,4 +389,26 @@ Hello World!
 ```
 curl $GATEWAY/mesh -v
 ```
-NOTE: this is a WIP. I'm missing a step. The service is not accessible. 
+OUTPUT:
+```
+* Rebuilt URL to: meshexpand.default.svc.cluster.local:8080/
+*   Trying 10.35.254.116...
+* TCP_NODELAY set
+* Connected to meshexpand.default.svc.cluster.local (10.35.254.116) port 8080 (#0)
+> GET / HTTP/1.1
+> Host: meshexpand.default.svc.cluster.local:8080
+> User-Agent: curl/7.58.0
+> Accept: */*
+>
+< HTTP/1.1 200 OK
+< x-powered-by: Express
+< content-type: text/html; charset=utf-8
+< content-length: 12
+< etag: W/"c-Lve95gjOVATpfV8EL5X4nxwjKHE"
+< date: Sat, 07 Jul 2018 01:49:52 GMT
+< x-envoy-upstream-service-time: 7
+< server: envoy
+<
+* Connection #0 to host meshexpand.default.svc.cluster.local left intact
+Hello World!
+```
