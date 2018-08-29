@@ -89,6 +89,8 @@ analytics "apigee" created
 authorization "apigee" created
 ```
 
+NOTE: if you notice a failure when running this command, please run it again. The error should be resolved. 
+
 Apply the Apigee handler to Istio. The handler tells Mixer how to connect (securely) to Apigee.
 
 ```
