@@ -41,10 +41,10 @@ You may add it to your PATH for quick access - or remember to specify the path f
 Apigee's Istio Mixer adapter only requires istio-policy and istio-telemetry to be updated. We could have a deployment that only updates those components. But in this case we're upgrading all the components (most of which should be unchanged anyway).
 
 ```
-kubectl apply -f samples/istio/istio-demo-auth.yaml
-```
+kubectl -n istio-system set image deployment/istio-telemetry mixer=gcr.io/apigee-api-management-istio/istio-mixer:1.0.0
 
-You will see most of the messages as `component "component-name" unchanged`. This is expected. 
+kubectl -n istio-system set image deployment/istio-policy mixer=gcr.io/apigee-api-management-istio/istio-mixer:1.0.0
+```
 
 ### Provision Apigee for Istio
 
