@@ -2,10 +2,12 @@
 
 <img src="media/istio.png" align="middle" width="150px"/>
 
-## Summary 
+## Summary
+
 In this lab, you will learn how to install and configure Istio, an open source framework for connecting, securing, and managing microservices, on Google Kubernetes Engine, Google's hosted Kubernetes product. You will also deploy an Istio-enabled multi-service application. Once you complete this lab, you can try managing APIs with Istio and Apigee Edge.
 
-# Table of Contents
+## Table of Contents
+
 1. [Introduction](#introduction)
 2. [Setup and Requirements](#setup-and-requirements)
 3. [Prepare your Kubernetes/GKE cluster](#prepare-your-kubernetes-cluster)
@@ -25,7 +27,8 @@ In this lab, you will learn how to install and configure Istio, an open source f
     - [Testing Istio RBAC](#rbac)
     - [Testing Istio JWT Policy](#jwt)
 13. [Mesh Expansion](./mesh)
-14. [Miscellaneous](./misc)
+14. [Multi-Cluster Mesh Expansion](./multi)
+15. [Miscellaneous](./misc)
     - Websockets
     - Rate Limiting
     - Expose external services (egress traffic)
@@ -36,7 +39,7 @@ In this lab, you will learn how to install and configure Istio, an open source f
     - Obtain an OAuth token
     - View API Analytics
     - Expose APIs to third parties
-    - Restrict access to IPs    
+    - Restrict access to IPs
 16. [Uninstall Istio](#uninstall-istio)
 
 ## Introduction <a name="introduction"/>
@@ -61,6 +64,7 @@ Running through this codelab shouldn&#39;t cost you more than a few dollars, but
 New users of Google Cloud Platform are eligible for a [$300 free trial](https://console.developers.google.com/billing/freetrial?hl=en).
 
 ### Enable API
+
 Enable the Kubernetes Engine API:
 1. First click on APIs and Services on the right pane
 ![api_services](media/apis_and_services.png)
@@ -83,6 +87,7 @@ Enable the Kubernetes Engine API:
 ![gkeapi](media/enable_api.png)
 
 ### Google Cloud Shell
+
 While Google Cloud and Kubernetes can be operated remotely from your laptop, in this workshop we will be using Google Cloud Shell, a command line environment running in the Cloud.
 
 This Debian-based virtual machine is loaded with all the development tools you'll need. It offers a persistent 5GB home directory, and runs on the Google Cloud, greatly enhancing network performance and authentication. This means that all you will need for this codelab is a browser (yes, it works on a Chromebook).
@@ -332,6 +337,7 @@ EOF
 
 ```
 cat <<EOF | kubectl apply -f -
+apiVersion: networking.istio.io/v1alpha3
 kind: Gateway
 metadata:
   name: bookinfo-gateway
@@ -472,7 +478,8 @@ Once the v2 version has been tested to our satisfaction, we could use Istio to s
 For now, let&#39;s clean up the routing rules:
 
 ```
-istioctl delete -f samples/bookinfo/routing/route-rule-all-v1-mtls.yaml 
+kubectl delete -f samples/bookinfo/networking/virtual-service-all-v1.yaml -n default
+kubectl delete -f samples/bookinfo/networking/destination-rule-all-mtls.yaml -n default
 ```
 
 ## View metrics and tracing <a name="viewing-metrics-and-tracing"/>
