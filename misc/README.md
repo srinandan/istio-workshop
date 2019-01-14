@@ -7,6 +7,7 @@ In this lab, you will learn a few additional capabilities of Istio.
 2. Web Sockets
    - [Install sample websocket app](#install)
    - [Test websocket application](#test)
+   - [Protect a websockets endpoint](#protect)
 3. [Rate Limiting](#quota)
 4. [Expose external services](#expose)
    - [Within the service mesh](#within)
@@ -72,8 +73,44 @@ The first step opens a websocket connection to the server. The second step regis
 
 In this example, I'm sending `hi` to the server and the server responds with `helloworld`.
 
+### Protect a websockets endpoint <a name="protect"/>
+In this part of the lab, you will protect a websockets endpoints with apikeys and capture analytics.
+
+1. Create an API specification for the websockets application
+
+```
+kubectl apply -f ./websockets/websockets-api.yaml
+```
+
+2. Create rule to enable API key protection for the websockets application
+
+```
+kubectl apply -f ./websockets/websokets-rule.yaml
+```
+
+3. Test the endpoint
+
+```
+curl http://35.227.164.14/
+```
+
+OUTPUT:
+```
+PERMISSION_DENIED:apigee-handler.apigee.istio-system:missing authentication
+```
+This is an expected result. If you pass a valid apikey as a queryparam, then the call should succeed. 
+
+4. Test the websocket connection
+
+
 ## Rate Limiting <a name="quota"/>
 In this part of the lab, we will enable rate limiting on a service. 
+
+<img src="./media/websockets-apikey.png" width="500px"/>
+
+The first connection does not provide an apikey. The second connection provides an invalid apikey. The last connection provides a valid apikey.
+
+NOTE: Istio does not call Mixer (istio-policy) once a connection is successfully established. Therefore Quota or Rate Limiting policies are not expected to work.
 
 ### Understanding Quota
 There are four parts to quota. 

@@ -1,0 +1,11 @@
+apiVersion: config.istio.io/v1alpha2
+kind: rule
+metadata:
+  name: websockets-rule
+  namespace: istio-system
+spec:
+  match: context.reporter.kind == "inbound" && destination.namespace == "default" && destination.service.name == "websockets"
+  actions:
+  - handler: apigee-handler.apigee.istio-system
+    instances:
+    - apigee.authorization

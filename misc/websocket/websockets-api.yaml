@@ -1,0 +1,44 @@
+# Define an API
+apiVersion: config.istio.io/v1alpha2
+kind: HTTPAPISpec
+metadata:
+  name: websocketsapi
+  namespace: default
+spec:
+  apiKeys:
+  - query: apikey
+  - header: x-api-key
+  attributes:
+    attributes:
+      api.service:
+        stringValue: websockets.default.svc.cluster.local
+      api.version:
+        stringValue: v1
+  patterns:
+  - attributes:
+      attributes:
+        api.operation:
+            stringValue: /v1/ws
+    httpMethod: GET
+    uriTemplate: /v1/ws
+  - attributes:
+      attributes:
+        api.service:
+          stringValue: websockets.default.svc.cluster.local
+    httpMethod: GET
+    uriTemplate: /
+---
+# Bind the API to a service
+apiVersion: config.istio.io/v1alpha2
+kind: HTTPAPISpecBinding
+metadata:
+  creationTimestamp: null
+  name: websocketsapi-binding
+  namespace: default
+spec:
+  api_specs:
+  - name: websocketsapi
+    namespace: default
+  services:
+  - name: websockets
+    namespace: default
