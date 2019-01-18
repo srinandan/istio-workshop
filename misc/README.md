@@ -101,16 +101,15 @@ PERMISSION_DENIED:apigee-handler.apigee.istio-system:missing authentication
 This is an expected result. If you pass a valid apikey as a queryparam, then the call should succeed. 
 
 4. Test the websocket connection
-
-
-## Rate Limiting <a name="quota"/>
-In this part of the lab, we will enable rate limiting on a service. 
-
 <img src="./media/websockets-apikey.png" width="500px"/>
 
 The first connection does not provide an apikey. The second connection provides an invalid apikey. The last connection provides a valid apikey.
 
 NOTE: Istio does not call Mixer (istio-policy) once a connection is successfully established. Therefore Quota or Rate Limiting policies are not expected to work.
+
+
+## Rate Limiting <a name="quota"/>
+In this part of the lab, we will enable rate limiting on a service. 
 
 ### Understanding Quota
 There are four parts to quota. 
