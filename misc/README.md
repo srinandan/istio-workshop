@@ -74,7 +74,7 @@ The first step opens a websocket connection to the server. The second step regis
 In this example, I'm sending `hi` to the server and the server responds with `helloworld`.
 
 ### Protect a websockets endpoint <a name="protect"/>
-In this part of the lab, you will protect a websockets endpoints with apikeys and capture analytics.
+In this part of the lab, you will protect a websockets endpoints with apikeys and capture analytics using Apigee Edge.
 
 1. Create an API specification for the websockets application
 
@@ -99,6 +99,8 @@ OUTPUT:
 PERMISSION_DENIED:apigee-handler.apigee.istio-system:missing authentication
 ```
 This is an expected result. If you pass a valid apikey as a queryparam, then the call should succeed. 
+
+NOTE: To create a valid API key, please follow the steps [here](../apimanagement/README.md). It involves creating an API Product and a Developer App in Apigee Edge.
 
 4. Test the websocket connection
 <img src="./media/websockets-apikey.png" width="500px"/>
