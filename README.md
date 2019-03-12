@@ -117,7 +117,7 @@ To create a new cluster that meets these requirements, including alpha features,
     --num-nodes=6 \
     --no-enable-legacy-authorization \
     --zone=us-west1-b \
-    --cluster-version=1.9.7-gke.3
+    --cluster-version=1.11.7-gke.4
 ```
 
 Setup Kubernetes CLI Content:
